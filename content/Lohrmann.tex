@@ -21,6 +21,10 @@ Diese Berechnung wird für alle Pfade der Topologie ausgeführt.
 Er vergleicht pro Pfad die berechneten Werte mit dem für den Pfad gegebenen Maximalwert für die Latenz.
 Der Maximalwert der Latenz des Pfades muss vom Benutzer angegeben werden, bevor der Algorithmus ausgeführt wird.
 Der Algorithmus versucht den gegebenen Maximalwert für die Latenz des Pfades mit dem geringsten Ressourcenverbrauch zu erreichen.
+Die Latenz eines Operators wird im Modell des Algorithmus als konstant angenommen. 
+Die Wartezeit verändert sich nach der Formel von Kingman mit der Parallelisierungsgrad des Operators.
+So stellt die Wartezeit die einzige Möglichkeit dar um die Latenz des Pfades zu anzupassen.
+
 Um minimale Ressourcen zu verbrauchen, startet der Algorithmus bei dem minimalen Parallelisierungsgrad für alle Operatoren.
 Schrittweise berechnet er dann, bei welchem Operator eine Erhöhung des Parallelisierungsgrades um eins die größte Verringerung der Latenz des Pfades zur Folge hat.
 Außerdem bestimmt der Algorithmus den Operator, welcher den zweitgrößten Effekt auf die Latenz des Pfades hat.
@@ -158,10 +162,130 @@ Um zu prüfen ob der Operator die maximal erlaubte Warteschlangenzeit \(w=1\) er
 
 Drastischer ist das Problem für den Fall, dass der Faktor \(e > 1\) ist. 
 Dann würde der gemessene Wert größer als der berechnete Wert sein. 
-Nehmen wir an \(e = 1.5, W(3)=1}\) und \(W(3) = (2/3) * 1.5\) sowie \(w=1\). 
+Nehmen wir an \(e = 1.5, W(3)=1\) und \(W(3) = (2/3) * 1.5\) sowie \(w=1\). 
 Das Ergebnis von \(W\) ergibt, dass sich die maximale Warteschlangenzeit durch den Parallelisierungsgrad von 3 erfüllen lässt. 
 Wird nun der Parallelisierungsgrad durch \(Pw\) berechnet resultiert daraus \(2\). 
 Somit würde durch den geringeren Parallelisierungsgrad der Maximalwert für die Latenz des Pfades verletzt.
 
 Um diesem Problem entgegen zu wirken, wird in der Implementation des Algorithmus das Ergebnis von \(P_w\) mit dem Koeffizienten \(e\) multipliziert.
+
+\section{Parameter}
+
+Dieser Bereich beschreibt die Parameter, mit welchen der Algorithmus gesteuert werden kann.
+Parameter die in der originalen Version des Algorithmus von Lohrmann et al. fix definiert waren, wurden für die Implementation parametrisiert um flexibler zu sein.
+Der Algorithmus berücksichtigt die neben den speziell dem Algorithmus zugewiesenen Parametern noch den maximalen und minimalen Parallelisierungsgrad aus dem Graph-Modell.
+Die folgenden Parameter sind als finale statische Attribute in der Klasse für den Algorithmus zu finden.
+
+\subsection{Flaschenhals Grenzwert}
+
+Name: \textit{BOTTLENECK\_THRESHOLD}
+
+Standardwert: \textit{1.0}
+
+Wie von Lohrmann et al. beschrieben ist der Algorithmus ungültig wenn die Topologie einen Flaschenhals aufweist.
+Ein Operator wird als Flaschenhals definiert, wenn er eine Auslastung von 100\% oder nahezu 100\% hat.
+Für die Implementation wurde der Grenzwert von 100\% nicht als Konstante sondern als konfigurierbarer Parameter umgesetzt.
+Der Wert kann als Dezimalzahl angegeben werden, sodass 1.0 = 100\% Auslastung entspricht.
+Ein Wert von größer als 1.0 zu setzen ist für den Algorithmus nicht zulässig.
+Allerdings könnte es für eine schnellere Skalierung der Operatoren interessant sein, dass der Grenzwert für einen Flaschenhals auf einen niedrigeren Wert gesetzt wird.
+
+Allerdings ist zu beachten, dass der Wert nicht zu niedrig angesetzt sein darf, da sonst immer abwechselnd gegensätzliche Aktionen durch den Algorithmus angestoßen werden.
+Im ersten Durchlauf erkennt er einen Flaschenhals, zum Beispiel mit einem Grenzwert von 50\%.
+Daraufhin wir der Parallelisierungsgrad des Operators verdoppelt.
+Beim nächsten Lauf ist der Flaschenhals nicht mehr vorhanden und der Algorithmus verwendet die Funktion der Wartezeit.
+Er versucht die maximale Latenz des Pfades mit möglichst wenig Ressourcen zu unterschreiten.
+Deshalb ist es sehr wahrscheinlich, dass er den zuvor verdoppelten Parallelisierungsgrad wieder zurück setzt um Ressourcen zu sparen.
+Im darauf Folgenden lauf wird dies dazu führen, dass der Operator wieder als Flaschenhals erkannt wird.
+
+\subsection{Koeffizient für Stapelverarbeitung}
+
+Name: \textit{ADAPTIVE\_BATCHING\_COEFFICIENT}
+
+Standardwert: \textit{0.8}
+
+Wertebereich \textit{\(0 \leq x < 1\)}
+
+Die Idee der Stapelverarbeitung ist, dass Tupel am Ende eines Operators gesammelt werden und gleichzeitig über das Netzwerk gesendet werden können.
+Durch die Zusammenfassung der Tupel kann der Overhead für Netzwerkprotokolle verringert und somit der Durchsatz an Tupel verringert werden.
+Allerdings steigt durch die Wartezeit im Stapel die Latenz.
+Lohrmann et al. beschreiben in \cite{lohrmann_nephele_2014} adaptive Stapelverarbeitung.
+Sie beschreiben ein System welches die Stapelgröße am Ende eines Operator dynamisch ändert, anstatt wie bei anderen CEP-Systemen, die Größe system-weit zu fixieren.
+Der Name des Parameters ist darauf zurück zu führen, dass der vorgestellte Algorithmus auf dem CEP-System Nephele aufbaut, für das die adaptive Stapelverarbeitung implementiert wurde.
+Jedoch ist die Aufgabe des Parameters im Algorithmus generell für jede Stapelverarbeitung zutreffend.
+
+Der Parameter ist ein Koeffizient welcher die Dauer beschreibt, die ein Tupel in dem Ausgangsstapel eines Operators liegt.
+Er wird als Anteil der maximalen Latenz des Pfades angegeben.
+Die effektive maximale Latenz eines Pfades berechnet der Algorithmus durch das Produkt aus diesem Parameter und der maximalen Latenz des Pfades.
+
+\subsection{Schrittweite}
+
+Name: \textit{DELTA\_STEP\_SIZE}
+
+Standardwert: \textit{1}
+
+Wertebereich \textit{\(1 \leq x\)}
+
+Dieser Parameter legt die Schrittweite fest, mit der der Algorithmus den Operator bestimmt, der den größten Einfluss auf die Latenz des Pfades hat.
+In jeder Runde berechnet der Algorithmus die Wartezeit aller Operatoren.
+Die Berechnung wird mit dem Parallelisierungsgrad , der um die definierte Schrittweite erhöht ist, durchgeführt. 
+Anschließend vergleicht er, welcher Operator die Gesamtlatenz mit dem neuen Parallelisierungsgrad am stärksten verringern würde.
+Die Schrittweite dient aber ausschließlich zur Auswahl des Operators.
+Der Parallelisierungsgrad des Operators wird anschließend von der Funktion \(P_\Delta\) festgelegt.
+Deswegen ist der Standardwert von eins durchaus sinnvoll.
+Ein höherer Wert wäre interessanter, wenn die Operatoren um die Schrittweite ebenfalls direkt erhöht werden würden.
+Für die vorliegende Version des Algorithmus führt die Abweichung vom Standardwert sehr wahrscheinlich zu einem höheren Verbrauch an Ressourcen.
+
+\subsection{Verwendung der Latenz der Kanäle}
+
+Name: \textit{USE\_LATENCY\_ADAPTION}
+
+Standardwert: \textit{true}
+
+Wertebereich \textit{Boolean}
+
+Im einem vorhergehenden Kapitel wurde die Berechnung des Koeffizienten e untersucht.
+Mit dem Koeffizienten wird versucht die berechnete Wartezeit an die Tatsächliche Wartezeit im System anzupassen.
+Dazu wird die mit dem aktuellen Parallelisierungsgrad errechnete Wartezeit eines Operators mit der tatsächlich gemessenen Wartezeit ins Verhältnis gesetzt.
+Das Messen der Wartezeit im realen System ist je nach Support des CEP-Systems nicht trivial.
+Lohrmann et al. definieren die gemessene Wartezeit als \(Latenz des Kanals - Latenz der Stapelverarbeitung\).
+Die Messung der Latenz des Kanals ist jedoch ein nicht triviales Problem, sobald Operatoren sich über mehrere Rechner verteilen.
+Die Uhren der Hosts exakt synchron zu halten ist nicht realisieren.
+Somit ist die Messung der Latenz des Kanals nie korrekt.
+
+Ein weiteres Detail ist das Verhältnis der Netzwerklatenz zu der Wartezeit.
+Wie zu Beginn dieses Kapitels beschrieben, ist die Wartezeit die variable Größe, die durch den Algorithmus optimiert wird.
+Die Netzwerklatenz wird, wie die Latenz des Operators, als konstant angenommen.
+Sind Operatoren über mehrere Rechner verteilt ist die Netzwerklatenz in der Latenz des Kanals enthalten.
+Aus empirischer Erfahrung in der Testumgebung ist die Netzwerklatenz ein essentieller Teil der Latenz des Kanals.
+Nehmen wir an dass die Netzwerklatenz einen Anteil von 90\% an der Gesamtlatenz von 10 ms hat.
+Somit wäre die gemessene Wartezeit bei 1 ms.
+Das Ergebnis für die Berechnung der Wartezeit durch die Kingman Formel liefert ebenfalls 1 ms.
+Sie trifft also die reale Wartezeit des Tupels exakt.
+Wenn die Latenz der Stapelverarbeitung mit null beziffern wird der Koeffizient e wird nun wie folgt berechnet:
+\[ e = frac{Latenz des Kanals}{Kingman} = frac{10 / 1} = 10\]
+Dies würde bedeuten dass der Algorithmus die Wartezeit des Operators verzehnfacht.
+Anschließend würde er versuchen die verzehnfachte Wartezeit über den Parallelisierungsgrad des Operators zu verringern.
+Real ist der Anteil der Netzwerk-Latenz aber konstant.
+Im realen System werden durch die Skalierung somit nur 10\% der berechneten Verringerung der Wartezeit effektiv erreicht.
+Der Algorithmus neigt deshalb dazu sehr hohe Parallelisierungsgrade zurück zu geben, die auf im realen aber nur einen geringen Effekt auf die Latenz des Pfades bewirken.
+
+Daher ist eine Adaption der berechneten Wartezeit durch den Koeffizienten e nur sinnvoll, wenn die effektive Wartezeit im realen System bestimmt werden kann.
+In der Implementation wurde daher der hier beschriebene Parameter eingeführt, um die Adaption durch den Koeffizienten e abzuschalten zu können.
+Dieser wird sinnvoller Weise auf \textit{false} gesetzt wenn die Wartezeit im CEP-System nicht bestimmt werden kann.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
