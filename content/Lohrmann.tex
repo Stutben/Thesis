@@ -262,12 +262,12 @@ Somit wäre die gemessene Wartezeit bei 1 ms.
 Das Ergebnis für die Berechnung der Wartezeit durch die Kingman Formel liefert ebenfalls 1 ms.
 Sie trifft also die reale Wartezeit des Tupels exakt.
 Wenn die Latenz der Stapelverarbeitung mit null beziffern wird der Koeffizient e wird nun wie folgt berechnet:
-\[ e = frac{Latenz des Kanals}{Kingman} = frac{10 / 1} = 10\]
-Dies würde bedeuten dass der Algorithmus die Wartezeit des Operators verzehnfacht.
+\[ e = \frac{Latenz des Kanals}{Kingman} = \frac{10 / 1} = 10\]
+Dies würde bedeuten dass der Algorithmus die berechnete Wartezeit des Operators verzehnfacht.
 Anschließend würde er versuchen die verzehnfachte Wartezeit über den Parallelisierungsgrad des Operators zu verringern.
 Real ist der Anteil der Netzwerk-Latenz aber konstant.
 Im realen System werden durch die Skalierung somit nur 10\% der berechneten Verringerung der Wartezeit effektiv erreicht.
-Der Algorithmus neigt deshalb dazu sehr hohe Parallelisierungsgrade zurück zu geben, die auf im realen aber nur einen geringen Effekt auf die Latenz des Pfades bewirken.
+Der Algorithmus neigt deshalb dazu sehr hohe Parallelisierungsgrade zurück zu geben, die in der realen Topologie aber nur einen geringen Effekt auf die Latenz des Pfades bewirken.
 
 Daher ist eine Adaption der berechneten Wartezeit durch den Koeffizienten e nur sinnvoll, wenn die effektive Wartezeit im realen System bestimmt werden kann.
 In der Implementation wurde daher der hier beschriebene Parameter eingeführt, um die Adaption durch den Koeffizienten e abzuschalten zu können.

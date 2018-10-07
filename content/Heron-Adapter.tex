@@ -1,0 +1,248 @@
+\chapter{Adapter für Heron}
+
+Wie bereits in der Architektur des Frameworks beschrieben, stellt der Adpater die Komponente dar, die eine uniforme Steuerung verschiedener CEP-Systeme ermöglicht.
+Der Adapter kapselt die spezifischen Eigenschaften eines CEP-Systems und dessen API.
+Die Funktionen des Adapters werden über eine einheitliche REST-Schnittstelle veröffentlicht.
+So können von einer zentralen Komponente mehrere Adapter über das Netzwerk mit dem HTTP-Protokoll angesprochen werden.
+Dies ermöglicht die unabhängige Platzierung von CEP-Systemen und des Frameworks.
+Der Adapter wird normalerweise auf dem Rechner platziert, auf dem die Steuer-Komponente des CEP-Systems liegt.
+Allerdings muss dies je nach Art der API des CEP-Systems nicht zwingend notwendig sein.
+Das folgende Kapitel befasst sich mit der Umsetzung des Adapters für das CEP-System Heron.
+
+\section{Implementierung}
+
+Das Ziel des Adapters ist eine ausgewählte Topologie im System ansprechen zu können.
+Ein Adapter ist daher immer nur für eine spezifische Topologie zuständig.
+Es ist aber möglich mehrere Adapter auf unterschiedlichen Ports zu starten um mehrere Topologien ansprechen zu können.
+Diese Entscheidung wurde zur Vereinfachung der REST-API getroffen.
+So müssen nicht bei jedem Aufruf alle Parameter angegeben werden, die eine spezifische Topologie identifizieren.
+Die korrekte IP-Adresse und der korrekte Port genügen um den Adapter für eine Topologie anzusprechen.
+Außerdem können die Merkmale, die eine Topologie identifizieren, bei unterschiedlichen CEP-Systemen variieren.
+Mit der gewählten Architektur können die Merkmale beim Start des Adapter angegeben werden.
+Jede Implementation eines Adapters kann die Start-Parameter beliebig festlegen und bietet somit Flexiblität für die Definition der Topologie.
+
+Um den Adapter für Heron zu Starten werden folgende Parameter benötigt:
+\begin{itemize}
+\item{URL: Definiert die Adresse unter der der Adapter erreichbar ist.}
+\item{Tracker URL: Definiert die Adresse unter der die Heron-API erreichbar ist.}
+\item{Cluster: Bestimmt den Cluster in dem die Ziel-Topologie ausgeführt wird.}
+\item{Topologie: Der Name mit dem die Topologie identifiziert wird.}
+\item{Umgebung: Wird von Heron ebenfalls benutzt um die Topologie zu identifizieren.}
+\item{Heron CLI: Spezifiziert den Pfad zu den ausführbaren Programmen von Heron.}
+\item{CLI Clustername: Spezifiziert welcher wie das Cluster über die CLI angesprochen werden kann.}
+\item{Messwert-Interval: Definiert die Zeitspanne der Messwerte, die ausgelesen werden, in Sekunden.}
+\end{itemize}
+Der Adapter ist in eine eigenständige JAR-Datei verpackt, die auf jedem Rechner mit installierter Java Laufzeitumgebung ausgeführt werden kann.
+Beim Ausführen wird ein glassfish-Server gestartet.
+Dieser nimmt Anfragen über die REST-API entgegen.
+
+Werden über die REST-API Metriken oder der Aufbau der Topologie angefragt, leitet der Adapter die Anfrage an Heron weiter.
+Heron bietet für die Abfrage von Messwerten selbst eine REST-Schnittstelle an.
+Die Implementation des Adapters kapselt die REST-Schnittstelle von Heron und abstrahiert sie.
+Messwerte werden immer für die in den Startparametern definierte Topologie abgefragt.
+Wie Metriken von Heron bereit gestellt und wie diese vom Adapter angepasst werden ist im folgenden Kapitel detailliert ausgeführt.
+
+\section{Metriken in Heron}
+
+Ein essentieller Teil des Adapters ist die Anpassung der vom CEP-System gelieferten Messwerte an die im Graph-Modell erwarteten Werte.
+CEP-Systeme erfassen Messwerte auf unterschiedliche Arten oder legen unterschiedliche Messpunkte für den Wert fest.
+Das Wissen, wie CEP-Systeme die Messwerte erfassen, muss durch den Adapter gekapselt werden.
+Die Annahmen die das Graph-Modell trifft, werden im Kapitel ********** diskutiert.
+
+Heron arbeitet mit einem verteilen System für die Erfassung der Messdaten.
+Alle Container, die einen Task enthalten, sammeln die Messwerte autonom.
+Jede Minute werden die Werte von den einzelnen Containern zu einer zentralen Einheit, dem sogenannten Metrik-Manager, gesendet.
+Dieser sammelt die Daten und sichert sie zentral für die Bedienung der Anfragen.
+
+Auf der Webseite von Heron wird angegeben dass die erfassten Messwerte bis zu drei Stunden vorgehalten werden \cite{noauthor_heron_nodate}.
+Alle Werte die vor dieser Zeitspanne erfasst wurden sind nicht mehr verfügbar.
+Die Messwerte von Heron werden in einer Auflösung von einer Minute erfasst und gesichert.
+Die Messwerte können von Heron als Zeitreihe mit der Auflösung von einer Minute abgefragt werden.
+Alternativ können die Messwerte von Heron direkt aggregiert abgerufen werden.
+Da das Graph-Modell nur aggregierte Messwerte und keine Zeitreihen unterstützt, werden vom Adapter direkt die aggregierten Messwerte abgefragt.
+Der Parameter Messwert-Interval, der definiert werden muss, um den Adapter zu starten, bestimmt die Zeitspanne für die die Messwerte aggregiert werden.
+Der Endzeitpunkt der Spanne ist immer der Zeitpunkt t, an dem der Adapter die Anfrage an Heron sendet.
+Wenn der Parameter \textit{Messwert-Interval} durch s repräsentiert wird so werden alle Werte die in der folgenden Zeitspanne \([t-s, t]\) aggregiert.
+Heron bietet über die REST-API standardmäßig die untenstehenden auf den Operator bezogenen Messwerte an.
+Die Metriken unterscheiden sich bei Quell-Operatoren und anderen verarbeitenden Operatoren.
+Betrachten wir zuerst die Quell-Operatoren:
+
+\begin{itemize}
+\item{\_\_ack-count: Dieser Wert beschreibt die Anzahl an Tupel, die durch das CEP-System bereits erfolgreich abgearbeitet an den Quell-Operator zurückgemeldet wurden. 
+Dieser Messwert wird nur erfasst, falls die Topologie für die Bestätigung der Tupel konfiguriert und implementiert ist.}
+
+\item{\_\_fail-count: Dieser Wert gibt die Anzahl an Tupel an, bei denen während der Verarbeitung Fehler aufgetreten sind. Tritt ein Fehler auf wird dies bei entsprechender Implementation an den Quell-Operator gemeldet. Dieser Messwert wird nur gemessen, falls die Topologie für die Bestätigung der Tupel konfiguriert ist.}
+
+\item{\_\_emit-count: Gibt die Anzahl von Tupel an, die von dem Quell-Operator ausgegeben wurden.}
+
+\item{\_\_complete-latency: Gibt die Gesamtlatenz für eine erfolgreiche Bearbeitung eines Tupels in der Topologie an. Dieser Wert kann von der Quelle berechnet werden, wenn die erfolgreiche Verarbeitung des Tupels zurückgemeldet wird.}
+
+\end{itemize}
+
+Verarbeitende Operatoren:
+
+\begin{itemize}
+\item{\_\_execute-count: Jeder verarbeitende Operator besitzt eine Methode, die von Heron aufgerufen wird und ankommende Tupel verarbeitet. Dieser Wert gibt an, wie oft die verarbeitende Methode aufgerufen wurde. Dieser Messwert gibt keine Aussage über die Anzahl ausgegebener Tupel.}
+
+\item{\_\_ack-count: In der Methode, die die Tupel verarbeitet, kann zu einem beliebigen Zeitpunkt die erfolgreiche Verarbeitung des Tupels an den Quell-Operator signalisiert werden. Dieser Messwert gibt die Anzahl der Tupel an, die von diesem Operator an den Quell-Operator als "erfolgreich Verarbeitet" zurückgemeldet wurden.}
+
+\item{\_\_fail-count: Ebenso kann in der Methode, die die Tupel verarbeitet, das Auftreten eines Fehlers an Quell-Operator signalisiert werden. Der Zeitpunkt der Benachrichtigung ist wiederum vollständig von der Implementierung der Methode abhängig. Der Messwert gibt die Anzahl der an den Quell-Operator signalisierten Fehler an.}
+
+\item{\_\_execute-latency: Dieser Messwert beschreibt die durchschnittliche Laufzeit der Methode, welche die Tupel verarbeitet in Nanosekunden. Ein Tupel kann zu jedem beliebigen Zeitpunkt der Methode ausgegeben werden. Tupel können auch an mehreren Zeitpunkten während der Ausführung der Methode ausgegeben werden. Dies bedeutet, dass dieser Messwert nicht zwingend die Dauer bis zur Ausgabe des Tupels darstellt. Dies trifft ebenso für die Benachrichtigungen über Erfolg oder Fehlschlag an den Quell-Operator zu. Ob der Messwert für die Latenz des Tupels im Operator aussagekräftig ist, hängt von der Implementation des Operators ab.}
+
+\item{\_\_process-latency: Dieser Wert gibt die Dauer in Nanosekunden an, die benötigt wurde um die Verarbeitung eines Operators als erfolgreich oder fehlerhaft zu melden. Er misst jedoch nicht die Gesamtlaufzeit des Tupels im System. Gemessen wird ausschließlich die Zeit von Beginn der verarbeitenden Methode bis zu dem Zeitpunkt, an dem die Benachrichtigung, ob das Tupel erfolgreich verarbeitet oder fehlerbehaftet war, erzeugt wird. Die Rückmeldung innerhalb der Methode kann, wie oben beschrieben, zu einem beliebigen Zeitpunkt während der Ausführung geschehen.}
+
+\item{\_\_emit-count: Gibt die Anzahl von Tupel an, die von dem verarbeitenden Operator ausgegeben wurden.}
+
+\end{itemize}
+
+Eine exakte Definition der Messwerte, die von Heron erfasst werden, ist dem momentanen Stand der Heron-Dokumentation nicht zu entnehmen. 
+Dehalb wurde die Bedeutung, der von Heron bereitgestellten Messwerte, empirisch festgestellt.
+
+Alle vorangegangenen Ausführungen beziehen sich auf die Standardeinstellungen von Heron in der Version 17.05.
+Alle Konfigurationen können in den Files \textit{metrics\_sinks.yaml} und textit{heron\_internals.yaml} in dem Verzeichnis des verwendeten Clusters angepasst werden. 
+Außerdem bietet Heron die Möglichkeit Messdaten in Drittsysteme zu exportieren.
+Somit bietet sich die Möglichkeit für Algorithmen, die auf Basis von alten Daten das Verhalten der Topologie erlernen, Messdaten länger aufzubewahren.
+
+\section{REST-Schnittstelle}
+
+Welche Operationen der Adapter implementieren muss, wird durch die REST-Schnittstelle festgelegt.
+Im Detail implementiert der Adapter ein Java Interface.
+Der glassfish-Server veröffentlicht dann die im Interface definierten Methoden über die REST-Schnittstelle.
+Die Schnittstelle stellt für jeden Messwert im Graph-Modell eine Methode bereit, über die der Wert ausgelesen werden kann.
+Die vollständige Dokumentation der Schnittstelle ist in Tabelle *********************** zu sehen.
+Die REST-Schnittstelle antwortet im JSON Format.
+
+Betrachtet man die im vorherigen Kapitel die standardmäßig von Heron gelieferten Messwerte so ist ersichtlich, dass Heron nicht alle benötigten Messwerte für die REST-Schnittstelle liefert.
+Deshalb verlangt die Implementation des Adapters, dass die fehlenden Werte bestmöglich approximiert werden.
+Sämtliche Latenzen werden vor der Weitergabe über die Schnittstelle auf Millisekunden umgerechnet.
+Im Modell wird von einer Read-Read Latenz ausgegangen, sodass die Bearbeitungsdauer gleich der Latenz des Operators ist.
+Ein weiterer Punkt ist der Input von Tupeln am Operator.
+Dieser wird in Heron nicht erfasst.
+Da im Graph-Modell aber davon ausgegangen wird, dass keine selektive Weiterleitung von Tupeln stattfindet, sind die ausgegebenen Tupel des Vorgänger-Operators gleich den eingehenden Tupel.
+Die Varianzen der jeweiligen Werte werden mit Hilfe der von Heron gelieferten Zeitreihe berechnet.
+Die Größe der Stichprobe ist die Anzahl der minütlichen Werte, die von Heron geliefert werden.
+Sie ist somit von dem gewählten Messwert-Intervall abhängig.
+
+
+\begin{longtable}{|p{2cm}|p{12cm}|}
+
+\caption{Operationen der REST-Schnittstelle}
+\endfirsthead
+\caption{Operationen der REST-Schnittstelle}
+\endhead
+\endfoot
+\endlastfoot
+
+\hline
+Operation & /v1/getalloperators \\ \hline
+Ergebnis & {[}''Operator1'', ''Operator3'', ''Operator2''{]} \\ \hline
+Beschreibung & Liefert alle Operatoren unsortiert in einem Array mit Strings zurück \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getlogicaltopology \\ \hline
+Ergebnis & \{''Pfad1'':{[}''Operator1'',''Operator3''{]}, ''Pfad2'':{[}''Operator1'',''Operator2''{]}\} \\ \hline
+Beschreibung & Liefert alle Pfade der Topologie als Objekt zurück. Jedes Objekt besitzt ein Array mit den Operatoren in korrekter Reihenfolge \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatorparallelism?operator=Operator3 \\ \hline
+Ergebnis & 4 \\ \hline
+Beschreibung & Liefert den Parallelisierungsgrad des Operators als Integer \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getpathlatency?operator=Operator1 \\ \hline
+Ergebnis & 80.3 \\ \hline
+Beschreibung & Liefert die durchschnittliche Latenz der Pfade, bei denen der Operator die Quelle ist, als Gleitkommazahl in Millisekunden zurück. Die Operation ist nur für Quell-Operatoren erlaubt.  \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getfailedtuplescount?operator=Operator1 \\ \hline
+Ergebnis & 0.0 \\ \hline
+Beschreibung & Liefert die Anzahl der Tupel, bei denen der Operator die Quelle und die Verarbeitung fehlgeschlagen ist. Die Operation ist nur für Quell-Operatoren erlaubt.  \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getackedtuplescount?operator=Operator1 \\ \hline
+Ergebnis & 100000.0 \\ \hline
+Beschreibung & Liefert die Anzahl der Tupel, bei denen der Operator die Quelle ist und erfolgreich bearbeiten wurden. Die Operation ist nur für Quell-Operatoren erlaubt.  \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getlatency?operator=Operator2\&operation=AVG \\ \hline
+Ergebnis & 5.615 \\ \hline
+Beschreibung & Liefert die Latenz des Operators als Gleitkommazahl in Millisekunden. Dazu werden die Werte der einzelnen Tasks aggregiert. Erlaubte Operationen sind AVG, SUM, MAX, MIN. Die Operation ist für Quell-Operatoren nicht erlaubt \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatorlatency?operator=Operator2 \\ \hline
+Ergebnis & \{''Task1'':5.32, ''Task2'':5.01\} \\ \hline
+Beschreibung & Liefert ein Objekt, das die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Latenz des Tasks als Gleitkommazahl zugewiesen. Die Operation ist für Quell-Operatoren nicht erlaubt. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatorlatencyvariance?operator=Operator2 \\ \hline
+Ergebnis & \{''Task1'':3.33, ''Task2'':3.87\} \\ \hline
+Beschreibung & Liefert ein Objekt, das die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Varianz der Latenz des Tasks als Gleitkommazahl zugewiesen. Die Operation ist für Quell-Operatoren nicht erlaubt. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoutputcount?operator=Operator1\&operation=SUM \\ \hline
+Ergebnis & 100000.0 \\ \hline
+Beschreibung & Liefert die Anzahl der Tupel, die der Operator ausgegeben hat. Dazu werden die Werte der einzelnen Tasks aggregiert. Erlaubte Operationen sind AVG, SUM, MAX, MIN. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatoroutputcount?operator=Operator1 \\ \hline
+Ergebnis & \{''Task1'':50000, ''Task2'':50000\} \\ \hline
+Beschreibung & Liefert ein Objekt, das die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Anzahl der Tupel, die der Task ausgegeben hat, zugewiesen. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatoroutputcountvariance?operator=Operator1 \\ \hline
+Ergebnis & \{''Task1'':3.33, ''Task2'':3.87\} \\ \hline
+Beschreibung & Liefert ein Objekt, das die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Varianz der Tupel, die der Task ausgegeben hat, als Gleitkommazahl zugewiesen. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getexecutioncount?operator=Operator2\&operation=SUM \\ \hline
+Ergebnis & 100000.0 \\ \hline
+Beschreibung & Liefert zurück wie oft der Operator ausgeführt wurde. Dazu werden die Werte der einzelnen Tasks aggregiert. Erlaubte Operationen sind AVG, SUM, MAX, MIN. Die Operation ist für Quell-Operatoren nicht erlaubt. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatorexecutioncount?operator=Operator2 \\ \hline
+Ergebnis & \{''Task1'':50000, ''Task2'':50000\} \\ \hline
+Beschreibung & Liefert ein Objekt welches die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Anzahl wie oft der Task ausgeführt wurde. Die Operation ist für Quell-Operatoren nicht erlaubt. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatorexecutioncountvariance?operator=Operator2 \\ \hline
+Ergebnis & \{''Task1'':3.33, ''Task2'':3.87\} \\ \hline
+Beschreibung & Liefert ein Objekt, das die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Varianz der Anzahl wie oft der Task ausgeführt wurde als Gleitkommazahl zugewiesen. Die Operation ist für Quell-Operatoren nicht erlaubt. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getinputcount?operator=Operator2\&operation=SUM \\ \hline
+Ergebnis & 100000.0 \\ \hline
+Beschreibung & Liefert die Anzahl der Tupel, die beim Operator angekommen sind. Dazu werden die Werte der einzelnen Tasks aggregiert. Erlaubte Operationen sind AVG, SUM, MAX, MIN. Die Operation ist für Quell-Operatoren nicht erlaubt.\\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatorinputcount?operator=Operator2 \\ \hline
+Ergebnis & \{''Task1'':50000, ''Task2'':50000\} \\ \hline
+Beschreibung & Liefert ein Objekt, das die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Anzahl der Tupel, die beim Task angekommen sind, zugewiesen. Die Operation ist für Quell-Operatoren nicht erlaubt.\\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/getoperatorinputcountvariance?operator=Operator2 \\ \hline
+Ergebnis & \{''Task1'':3.33, ''Task2'':3.87\} \\ \hline
+Beschreibung & Liefert ein Objekt, das die Tasks des Operators beinhaltet. Jeder Task hat als Wert die Varianz der Tupel, die beim Task angekommen sind, als Gleitkommazahl zugewiesen. Die Operation ist für Quell-Operatoren nicht erlaubt. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/setoperatorparallelism?operator=Operator2?parallelism=4 \\ \hline
+Ergebnis & true \\ \hline
+Beschreibung & Setzt den Parallelisierungsgrad des Operators auf den definierten Wert. Liefert true wenn der Vorgang erfolgreich war, false wenn nicht. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+Operation & /v1/setmultipleoperatorparallelism?map=Operator2:4;Operator3:2 \\ \hline
+Ergebnis & true \\ \hline
+Beschreibung & Setzt den Parallelisierungsgrad der Operatoren auf den definierten Wert. Liefert true wenn der Vorgang erfolgreich war, false wenn nicht. \\ \hline
+\multicolumn{2}{|l|}{} \\ \hline
+
+\end{longtable}
+
+\section{UML-Diagramm}
+
+
+
+
+
+
+
+
