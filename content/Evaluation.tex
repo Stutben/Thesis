@@ -153,6 +153,7 @@ Um die folgenden Beschreibungen zu verstehen, sind folgende Erläuterungen notwe
 Ein Retweet ist ein Statusupdate welches das Statusupdate eines anderen Nutzers ohne weitere Anmerkung weiterverbreitet.
 Ein Antwort-Tweet ist ein Statusupdate, welches auf das Statusupdate eines anderen Nutzers antwortet.
 Ein Tweet zitiert einen anderen Tweet wenn er ihn weiterverbreitet und Anmerkungen hinzufügt.
+Außerdem ist zu bemerken, dass alle Operatoren Tupel direkt weiterverarbeiten und keine Fenster bilden.
 
 \begin{itemize}
 \item{''Parse'': Dieser Operator liest das Tupel, das einen String, der ein JSON-Objekt beschreibt, und liest alle Daten des JSON Objektes aus. Anschließend werden ausgewählte Daten weiter gesendet. Löschanfragen für Statusmeldungen werden nicht weitergeleitet.}
@@ -170,6 +171,7 @@ Ein Tweet zitiert einen anderen Tweet wenn er ihn weiterverbreitet und Anmerkung
 \section{Ablauf}
 
 In der Evaluation mussten die zuvor implementierten Algorithmen die Topologie steuern, während Sie die Tupel im Zeitfenster von zwei Stunden verarbeitet.
+Alle Operatoren starten dabei mit einem Parallelisierungsgrad von eins.
 Für jeden der beiden Algorithmen von Lohrmann et al. und Zacheilas et al. wurden fünf Durchläufe gestartet.
 Jeder Durchlauf startet mit dem aktivieren des Clusters.
 Die Hauptsteuerung wurde so implementiert, dass sie alle fünf Minuten die Topologie durch den gewählten Algorithmus prüfen lässt.
@@ -201,6 +203,7 @@ Die Evaluation stoppt sobald alle Tupel verarbeitet wurden.
 
 Für die Durchführung der Evaluation mussten die beschriebenen Parameter der Algorithmen definiert werden.
 Das GraphModell war so konfiguriert, dass der minimale Parallelisierungsgrad eins und der maximale zehn beträgt.
+Die maximale Latenz des Pfades wurde auf 10 ms gesetzt.
 Da jeder Task eines Operators eine CPU, und 1,25 RAM verbraucht, konnte der maximale Parallelisierungsgrad nicht höher als 10 gesetzt werden.
 
 Für die Evaluation wurden für den Warteschlangen-Algorithmus die in der Tabelle 10.3 gelisteten Parameter gewählt.
@@ -268,11 +271,113 @@ Anzahl Zeitfenster & 6 \\
 
 \section{Ergebnisse}
 
+Im folgenden werden für die Evaluation der beiden Algorithmen die Messwerte verwendet, die jeweils vor der Prüfung durch den Algorithmus erfasst wurden.
+Diese Reflektieren kein festes Intervall von fünf Minuten, da die fünf Minuten jeweils erst nach der Bestätigung, dass erfolgreich skaliert wurde, beginnen.
+Außerdem ist zu beachten, dass die gezeigten Auswertungen jeweils zur Minute fünf der Evaluation beginnen, da zu Beginn der Evaluation offensichtlich keine Messwerte vorliegen.
+Im folgenden Werden folgende Abkürzungen für die Algorithmen verwendet um die Lesbarkeit zu bessern:
+Algorithmus mit Warteschlangen Theorie (WT), Algorithmus mit Regression (RG).
+
+\subsection{Parallelisierungsgrad der Topologie}
+Um die weiteren Messwerte zu verstehen ist es essentiell zu betrachten in welchen Zustand die Topologie während des Zeitraums befand, in dem die Werte erfasst wurden.
+Deshalb wurde jeweils der summierte Parallelisierungsgrad der Topologie gemessen.
+Wie in Abbildung 10.3 zu sehen ist, verlaufen die Parallelisierungsgrade unter den beiden Algorithmen sehr unterschiedlich.
+Zu Beginn skalieren beide Algorithmen die Topologie nach oben. Es ist ersichtlich, dass WT den Parallelisierungsgrad der Operatoren schrittweise verdoppelt, während RG etwas schneller ansteigt.
+Nach dem initialen Anstieg schwankt der Parallelisierungsgrad unter WT sehr stark.
+WT nimmt über die Evaluation hinweg viele Anpassungen vor und tendiert dazu, stark zwischen hohen und niederen Werten zu schwanken, da er nur reaktiv auf die letzten drei Minuten reagiert.
+Bei hohem Parallelisierungsgrad geht dabei die Latenz der Tupel stark zurück, sodass der Algorithmus ihn verringert.
+Ist der Parallelisierungsgrad anschließend niedrig steigt die Latenz und der Algorithmus schlägt wieder hoch skaliert.
+So schwankt die Topologie stark zwischen zwei extremen.
+Den Parallelisierungsgrad zu ändern stoppt ebenfalls den Zufluss von Tupeln, sodass diese anschließend in größeren Mengen in die Topologie fließen, was diesen Effekt noch verstärkt.
+
+RG hingegen bewegt sich jedoch sehr konstant und ähnelt der gezeigten Regressionskurve von WT.
+Die Ähnlichkeit kann mit der Methode der Vorhersage, die ebenfalls eine Regression ist, zusammenhängen. Obwohl hier ausgehende und eingehende Tupel vorhergesagt werden, hängen diese vom Parallelisierungsgrad ab.
+Im Modell von Zacheilas et al. ist nicht explitzit berücksichtigt, dass die Anzahl der eingehenden Tupel ansteigt, sobald Vorgängeroperatoren skaliert werden.
+In den Trainigsdaten für die Regression ist dieser Umstand jedoch abgebildet, sodass der Parallelisierungsrad zum Messzeitpunkt der Trainigsdaten Einfluss auf beide Regressions-Modelle auswirkt.
+Da die Trainingsdaten immer mit einem bestimmen Parallelisierungsgrad gemessen werden, fällt es RG schwer die Operatoren auf Parallelisierungsgrade außerhalb der erfassten Trainingsdaten zu skalieren.
+Für diese Parallelisierungsgrade sind keine Informationen über eingehende und ausgehende Tupel vorhanden und das Regressions-Modell nähert sich eher an bekannte Parallelisierungsgrade an.
+Für bessere Vorhersagen ist es daher essentiell, dass Messungen mit allen Möglichen Parallelisierungsgraden der Topologie in die Trainingsdaten mit einfließen.
+
+Wie erwartet, hält der RG Algorithmus den Parallelisierungsgrad konstanter als der reaktive Ansatz von WT.
+Einerseits ist die Vorhersagemethode verantwortlich, da dieses einen Mittelwert aus den Trainingsdaten bildet und der Mittelwert konstanter verläuft als die jeweils aktuellen Messdaten, die WT zugrunde liegen.
+Außerdem wird bei RG der Zustand der Topologie jeweils für eine halbe Stunde voraus geplant was den Effekt verstärkt.
+So zeigt sich fast keine Schwankung, obwohl die verwendete Kostenfunktion eine Änderung der Topologie gleich gewichtet wie das verpassen eines einzelnen Tupels.
+Außerdem ist noch zu erwähnen dass der maximale Parallelisierungsgrad von 10 Tasks per Operator nie benötigt wurde.
+Somit war dieser Maximalwert kein Flaschenhals für die Topologie.
+
+\begin{figure}
+\includegraphics[scale=0.65]{Parallelisierung}
+\caption{Parallelisierungsgrade während der Evaluation.}
+\end{figure}
+
+\subsection{Latenz der Tupel}
+
+Wenn man den Verlauf der Latenzen der Tupel betrachtet, kann man feststellen, dass diese sich gegenläufig zum Verlauf des Parallelisierungsgrad verhalten.
+Auffällig ist, dass die Messwerte von WT im Schnitt deutlich niederer sind, als die Messwerte von RG.
+Dies ist durch mehrere Ursachen zu erklären.
+Zum einen wird die Topologie wesentlich häufiger durch WT angepasst, als es bei RG der Fall ist.
+Wir die Topologie wieder gestartet ist der Fluss der Tupel ungehemmter, als wenn sie konstant läuft.
+Dieser Effekt wurde versucht damit abzufangen, dass immer nur die letzten drei Minuten des fünf Minuten Intervalls gemessen wurden.
+Trotz kann dies Einfluss auf die Latenzen auswirken, da die Topologie eventuell länger als zwei Minuten benötigt bis sie einen stabilen Zustand erreicht.
+Des weiteren ist WT speziell dafür entwickelt die Latenz der Tupel unter einen gewissen Grenzwert zu halten, sodass diese ein essentieller Bestandteil der Steuerung ist.
+Dies ist bei RT nicht der Fall.
+Jedoch ist festzustellen, dass der gesetzte Maximalwert von zehn Millisekunden für die Latenz des Pfades nicht eingehalten wurde.
+Der Grund dafür ist, dass die Berücksichtigung der gemessenen Latenz des Kanals für die Evaluation nicht aktiviert war.
+Somit wird die Netzwerklatenz und die reale Warteschlange vor dem Operator nicht berücksichtigt und die berechnete nicht über den Koeffizienten e angepasst wird.
+
+Dass der Latenzwert bei RT vergleichsweise hoch ist, könnte daran liegen, dass das Modell eines Operators schlechte Vorhersagen getroffen hat.
+Dieser Operator erzeugt dann einen Flaschenhals der die Latenz des Tupels sehr erhöht.
+Dass die Latenz am Schluss von RT stark ansteigt, könnte daran liegen, dass die Trainingsdaten einen Abfall der eingehenden Tupel gegen Ende Aufweisen und deshalb der Parallelisierungsgrad geändert wird.
+Diese Struktur der Trainingsdaten wäre damit zu erklären, dass durch die vielen Umstellungen durch WT die Topologie oft gestoppt wird und so die Lesegeschwindigkeit die Ausgabe der Tupel von der Quelle beschränkt.
+Dies führt zu hohen Spitzenwerten für die Anzahl ankommender Tupel.
+Gegen Ende der Evaluation ist der Verlauf aber weniger Schwanken und die Spitzenwerte für ankommenden Tupel sinken.
+
+\begin{figure}
+\includegraphics[scale=0.55]{Latenz}
+\caption{Latenz der Tupel während der Evaluation.}
+\end{figure}
+
+\subsection{Tupel-Fehlerrate}
+
+Zuletzt soll noch die Fehlerrate der Tupel betrachtet werden.
+Die Fehlerrate berechnet sich aus dem Verhältnis der Anzahl Tupel, deren Verarbeitung fehlgeschlagen ist, und der Anzahl Tupel deren Verarbeitung erfolgreich war.
+Ein Tupel wird von der Topologie als fehlgeschlagen gewertet, wenn es innerhalb von 60 Sekunden nicht erfolgreich verarbeitet wurde.
+In beiden Diagrammen der Abbildung 10.5 ist deutlich zu sehen, dass die Fehlerrate zu Beginn sehr hoch ist.
+Erst wenn die Operatoren ausreichend skaliert sind, stabilisiert sich die Fehlerrate.
+Für WT ist zu sehen, dass die Fehlerrate sehr oft nahe bei 0\% liegt.
+Dies ist dadurch erklärbar, dass fehlerhafte Tupel erneut von der Quelle ausgegeben werden.
+Der Algorithmus reagiert anschließend stark auf die erhöhte Anzahl ausgegebener Tupel und kann den Überschuss kurzfristig ausgleichen.
+Diese Verhalten wurde in Kapitel 10.7.1 bereits beschrieben.
+
+RG weist hingegen eine sehr hohe Fehlerrate auf.
+Dies kann darauf zurückgeführt werden, dass der Algorithmus langfristige Prognosen betrachtet und die Fehlerrate nicht kurzfristig ausgleicht.
+Zudem basieren die Prognosen auf Messwerten von WT.
+Da WT die Fehlerrate kurzfristig ausgleicht, aber RG auf einem Mittelwert der gemessenen Werte basiert, können diese Spitzen nicht abgefangen werden.
+Dies erklärt ebenfalls warum die Latenz der Tupel unter RG in der zweiten Hälfte konstant hoch bleibt.
+Im Vergleich zu WT beleibt der Parallelisierungsgrad von RG in der zweiten Stunde konstant und ist somit höher als bei WT.
+Allerdings ist die Latenz der Tupel unter RG dennoch höher als bei WT.
+Dies erklärt sich durch die konstant hohe Fehlerrate die nicht abgearbeitet werden kann, und somit die Operatoren dauerhaft stark belastet.
+
+\begin{figure}
+\includegraphics[scale=0.55]{Fehlerrate.PNG}
+\caption{Fehlerrate der Tupel während der Evaluation.}
+\end{figure}
+
+\subsection{Schlussfolgerungen}
+
+Für das in der Evaluation verwendete Muster des Arbeitsaufwands scheint WT besser geeignet zu sein.
+Die Latenz und die Fehlerrate sind beide niedriger als bei RG.
+Allerdings benötigt WT zeitweise mehr Ressourcen, die zur Verfügung stehen müssen.
+Im Mittel sind die Kosten für Operatoren der Topologie ähnlich.
+Da durch die zeitliche Komporession der Daten die Spitzen und Tiefen schneller aufeinander folgen, ist es erklärbar, dass WT durch die eher kurzfristige reaktive Herangehensweise besser auf die schnelle Abfolge der Extreme reagieren kann.
+Dies setzt allerdings voraus, dass die ankommenden Tupel während der häufigen Änderungen der Topologie zwischengespeichert werden können.
+Der Algorithmus von Lohrmann et al. konnte trotz vielen Änderungen an der Topologie den Rückstand, der Tupeln die bearbeitet werden müssen, ausgleichen.
 
 
-
-Letzte wird nie parallelisiert bei zacheilas
-Lohrmann hat vorteil, weil 2 Minuten nicht gemessen werden
-Zacheilas bewegt sich im bekannten gefilde
-Selten max erreiht, Ressourcen kein problem
+Der Algorithmus von Zacheilas et al. ist relativ stark an die Mittelwerte der Trainingsdaten gebunden.
+Damit der Algorithmus erfolgreich eingesetzt werden kann, ist es notwendig, dass Messdaten für möglichst viele Parallelisierungsgrade eines Operators vorhanden sind.
+Sind diese Daten nicht vorhanden unterscheiden sich die Vorhersagen für hohe und niedere Parallelisierungsgraden nicht stark genug.
+Durch eine Optimierung der Hyperparameter kann diesem Verhalten ebenfalls entgegengewirkt werden.
+Ein weiterer Punkt ist, dass RG den letzten Operator der Topologie nie skalieren wird, da die Anzahl der ausgegebenen Tupel immer null entspricht.
+Somit ist die Anzahl verpasster Tupel des Operators und die damit verbundenen Kosten immer null.
+Für einen Workload der wenige Ausreisser besitzt und sich eher moderat verändert wäre der Algorithmus von Zacheilas et al. vermutlich besser geeignet als der Algorithmus mit Warteschlangen-Theorie. 
 

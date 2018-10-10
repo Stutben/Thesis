@@ -1,8 +1,63 @@
 % !TeX spellcheck = de_DE
 
 \chapter{Zusammenfassung und Ausblick}\label{chap:zusfas}
-Hier bitte einen kurzen Durchgang durch die Arbeit.
+In der vorliegenden Arbeit wurde zuerst die Grundlage für das Skalieren von Operatoren in CEP-Topologien erläutert.
+Um den Parallelisierungsgrad der Operatoren zu steuern, wurden in den letzten Jahren mehrere Algorithmen vorgeschlagen.
+Verschiedene Algorithmen wurden betrachtet und deren Stärken und Schwächen analyisert.
+Anschließend wurden zwei Algorithmen gewählt die implementiert und ausgiebig evaluiert werden sollen.
+
+Für die Implementation der Algorithmen wird ein Framework erstellt, welches es erlaubt dass diese Algorithmen unabhängig vom gesteuerten CEP-System arbeiten könne.
+Das Framework bietet als Schnittstelle für die Algorithmen ein Graph-Modell, das die Werte der Topologie autonom ausliest und bereitstellt.
+Das Graph-Modell ermöglicht es neue Algorithmen zu implementieren, ohne dass diese sich mit der Beschaffung von Messdaten aus den CEP-Systemen befassen müssen.
+Damit das Framework universell einsetzbar ist, muss für das entsprechende CEP-System ein Adapter implementiert werden.
+Der Adapter muss dabei die Spezifika des CEP-Systems kapseln und eine REST-Schnittstelle für das Framework bereitstellen.
+Um die Algorithmen auf dem CEP-System Heron evaluieren zu können, wurde ein bestehender Adapter für Heron so erweitert, dass er alle benötigten Funktionen bereitstellt.
+
+Anschließend wurden die beiden Algorithmen implementiert.
+Dabei wurden zum Teil leichte Modifikationen unternommen um sie robuster und flexibler zu machen.
+Einer der Algorithmen wurde von Lohrmann et al. vorgeschlagen und basiert auf der Verwendung der Warteschlangentheorie.
+Er verwendet das Modell, dass Tupel vor einem Operator warten müssen, bis sie verarbeitet werden.
+Der Algorithmus versucht die Wartezeit von Tupeln über das Skalieren von Operatoren unter einen benutzerdefinierten Grenzwert zu senken
+Der zweite Algorithmus basiert auf Vorhersagen über den zukünftigen Zustand der Topologie und wurde von Zacheilas et al. vorgeschlagen.
+Die Vorhersagen werden mit Hilfe von maschinellem Lernen getroffen.
+Anschließend werden die Vorhersagen mit einer Kostenfunktion gewichtet und in einen Graph von Zustandsübergängen modelliert.
+Der kürzeste Pfad durch den Graph bestimmt anschließend den nächsten Parallelisierungsgrad des Operators.
+
+Zuletzt wurde ein Test-Cluster mit Heron aufgebaut, um die Algorithmen zu evaluieren.
+Für die Evaluation wurden eine Menge von Daten benötigt, die eine Topologie auslasten kann.
+Deshalb wurden über eine Woche Daten von der Twitter Streaming API ausgelesen.
+Außerdem wurde eine Topologie implementiert, die Twitter-Daten analysiert und für die Evaluation eingesetzt wurde.
+Während der Evaluation mussten die Algorithmen die implementierte Topologie steuern, während diese die gesammelten Daten innerhalb von zwei Stunden verarbeitete.
+Dabei wurden verschiedene Messwerte erhoben und gegenüber gestellt.
+Das Ergebnis war, dass der Algorithmus von Lohrmann et al. für das Verhaltensmuster der verarbeiteten Daten deutlich bessere Werte für Tupel-Latenz und Fehlerrate erzielte.
+Die Erklärung dafür liegt darin, dass der Operator reaktiv auf Schwankungen in der Topologie reagiert.
+Der Algorithmus von Zacheilas et al. hält den Parallelisierungsgrad der Operatoren eher konstant und gleicht kurzfristige Schwankungen nicht aus.
+Er ist daher besser für einen sich stetig ändernden Arbeitsaufwand mit wenig Minima und Maxima geeignet.
 
 \section*{Ausblick}
-...und anschließend einen Ausblick
 
+Neben der durchgeführten Evaluation sollten noch weitere Evaluationen mit den implementierten Algorithmen durchgeführt werden.
+Die Parameter dabei sind sehr vielfältig.
+Zum einen könnte die Rate, mit der die Quelle Tupel ausgibt, angepasst werden.
+Ebenso kann das Zeitfenster für das Erfassen der Messwerte und deren Überprüfung durch den Algorithmus verändert werden.
+Da in der Evaluation nur drei Minuten des fünf minütigen Zeitfensters betrachtet werden, wäre es interessant wie sich der Zustand direkt nach dem Skalieren auf die evaluierten Messwerte auswirkt.
+Interessant wäre ebenfalls ein andere Daten oder ein anderes Muster des anfallenden Arbeitsaufwandes zu testen.
+
+Außerdem kann die Konfiguration von Heron angepasst werden, sodass mehr Tupel in den Buffer vor den Operatoren geladen werden können.
+Diese Änderung würde sich auf die Anzahl fehlgeschlagener Tupel auswirken.
+Ebenso könnte die Konfiguration der Topologie abgewandelt werden.
+Wenn die Topologie mit der ''AT\_MOST\_ONCE'' Garantie konfiguriert wird, werden fehlerhafte Tupel nicht mehr wiederholt,
+was die Last der Operatoren deutlich verringern könnte.
+Ein weiterer interessanter Punkt wäre zu sehen, wie sich die Messwerte der Algorithmen verhalten wenn die Drosselung des Tupel-Stroms in der Topologie aktiviert ist.
+
+Ein weiterer Punkt ist die Optimierung der Trainigsdaten für die Vorhersage.
+Mit einem größeren Datensatz könnte der Algorithmus von Zacheilas et al. exaktere Vorhersagen treffen und somit besser agieren.
+Hier spielen auch die Hyperparamter eine große Rolle.
+Diese wurden für die vorliegende Evaluation nicht optimiert.
+Die Qualität der Vorhersagen würde sich auch mit den aktuellen Trainingsdaten verbessern lassen, wenn das jeweilige Optimum der Hyperparameter berechnet wurde.
+
+Desweiteren könnte das Framework so erweitert werden, dass es möglich ist weitere CEP-Systeme zu steuern.
+Momentan ist nur der Adapter für Heron verfügbar.
+Die Erweiterung würde es ermöglichen die Algorithmen auf anderen Systemen zu testen.
+Die Möglichkeit noch mehr verschiedene Algorithmen miteinander zu vergleichen sollte ebenfalls in Betracht gezogen werden.
+Das Framework stellt das Graph-Modell als Grundlage bereit, sodass neue Algorithmen mit weniger Aufwand implementiert werden können.
