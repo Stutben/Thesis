@@ -197,8 +197,82 @@ Außerdem werden aus diesem Grund bei der Abfrage der Messwerte, die ebenfalls i
 Dies bedeutet, dass die Messwerte der ersten zwei Minuten, nachdem die Topologie skaliert wurde, weder für die Berechnung des Parallelisierungsgrades noch für die Ergebnisse der Evaluation verwendet wurden.
 Die Evaluation stoppt sobald alle Tupel verarbeitet wurden.
 
+\section{Parametrisierung der Algorithmen}
+
+Für die Durchführung der Evaluation mussten die beschriebenen Parameter der Algorithmen definiert werden.
+Das GraphModell war so konfiguriert, dass der minimale Parallelisierungsgrad eins und der maximale zehn beträgt.
+Da jeder Task eines Operators eine CPU, und 1,25 RAM verbraucht, konnte der maximale Parallelisierungsgrad nicht höher als 10 gesetzt werden.
+
+Für die Evaluation wurden für den Warteschlangen-Algorithmus die in der Tabelle 10.3 gelisteten Parameter gewählt.
+Wie im Original von Lohrmann et al. wurde die Erkennung eines Flaschenhalses ab einer Auslastung von 100\% gesetzt.
+Der Koeffizient für adaptives Batching wurde auf null gesetzt, da Heron diese Methode nicht verwendet.
+Der Parameter bestimmt ohnehin nur den Anteil der maximalen Latenz des Pfades, der für adaptives Batching reserviert ist.
+So kann dieser Anteil auch direkt bei der Angabe der maximalen Latenz berücksichtigt werden, wenn der Parameter auf null steht.
+Die Schrittweite des Algorithmus wurde ebenfalls wie im Original auf eins gesetzt.
+Die Verwendung des Koeffizienten e wurde deaktiviert, da die gemessene Latenz im Vergleich zu der vom Algorithmus berechneten Latenz sehr hoch war.
+Dies hätte wie in Kapitel 8.2.4 beschrieben dazu geführt, dass der Algorithmus sehr hohe Parallelisierungsgrade vorgeschlagen hätte.
+Dies hätte in Kombination mit dem maximalen Parallelisierungsgrad von zehn zur Folge gehabt, dass die Topologie während der Evaluation konstant maximal skaliert ist und nie angepasst wird.
+
+\begin{table}
+\caption{Parameter für den Warteschlangenalgorithmus}
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Parameter} & \textbf{Wert} \\ \hline
+BOTTLENECK\_THRESHOLD & 1.0 \\
+ADAPTIVE\_BATCHING\_COEFFICIENT & 0.0 \\
+DELTA\_STEP\_SIZE & 1 \\
+USE\_LATENCY\_ADAPTION & False\\
+\hline
+\end{tabular}
+\end{table}
+
+Für den Algorithmus, der Regression zur Vorhersage verwendet wurden die in Tabelle 10.4 gezeigte Parametrisierung gewählt.
+Die Trainingdaten für den Algorithmus wurden während der Evaluation des Lohrmann Algorithmus gesammelt.
+Alle fünf Minuten, in denen die neuen Metriken aus dem System abgerufen wurden, wurden für jeden Operator die Anzahl eingegangener und ausgegangener Tupel der letzten drei Minuten mit Zeitstempel versehen und gespeichert.
+Da die aus der Topologie bezogenen Messdaten vom aktuellen Zustand der Topologie und nicht von den verwendeten Twitter-Daten abhängen, sind auch Fehler reflektiert, die vom Algorithmus von Lohrmann et al. gemacht werden.
+Somit ist garantiert, dass die verwendeten Trainingsdaten das Vorhersage-Modell nicht speziell für den vorliegenden Twitter-Datensatz übertrainiert wird.
+
+Die Hyperparameter wurden für die Evaluation nicht mathematisch optimiert.
+Sie wurden lediglich so gewählt, dass die Regression Vorhersagen im richtigen Größenbereich trifft.
+Dazu wurden die Zeitstempel sehr schwach gewichtet.
+Die Zeit, die seit der Evaluation vergangen ist, wurde stark gewichtet, da sie einen größeren Zusammenhang mit dem Zustand der Topolgie aufweiste als der Zeitstempel.
+Da das Modell für eingehende Tupel nur auf den beiden Dimensionen Zeitstempel und vergangene Zeit beruht, muss die vergangene Zeit stark gewichtet werden um zu verhindern, dass der Zeitstempel das Modell verfälscht.
+Für die Vorhersage der ausgehenden Tupel wurde die Gewichtung des Parallelisierungsgrad so gewählt, dass er sich in etwa gleich wie die vergangene Zeit auf die Korrelation auswirkt.
+Wie in Kapitel 9.2.2 erwähnt besitzen der Parallelisierungsgrad und die Zeit, die seit der Evaluation vergangen ist, verschiedene Größenordnungen.
+In der Evaluation bewegen sich Parallelisierungsgrade im Einerbereich währen die Zeit bis zu 7200 steigt.
+Diese Tatsache wird durch den gewählten Wert des Hyperparameters ausgeglichen.
+
+Die Kostenfunktion wurde für alle Kostenfaktoren mit eins initialisiert.
+Dies fördert die Flexibilität der Topologie, da die Kosten, die Topologie zu ändern, und die Kosten pro verwendeten Task sehr gering sind.
+Die Anzahl verpasster Tupel kann jedoch schnell 1000 übersteigen, sodass die Kosten für verpasste Tupel ausschlaggebend für den kürzesten Pfad im Graphen der Zustandsübergänge sind.
+Die Vorhersagen wurden für Zeitfenster von fünf Minuten getroffen, um dem gleich dem Intervall zu sein, in dem die Topologie geprüft wird.
+Es wurden jede Runde Vorhersagen für sechs Zeitfenster getroffen, sodass immer Zustandsübergänge für die nächsten 30 Minuten berücksichtigt wurden.
+
+\begin{table}
+\caption{Parameter für den Algorithmus mit Regression} 
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Parameter} & \textbf{Wert} \\ \hline
+SIGMA\_INPUT & 1.0 \\
+LAMBDA\_INPUT & (1.0, 10000.0) \\
+SIGMA\_OUTPUT & 1.0 \\
+LAMBDA\_OUTPUT & (1.0, 10000.0 10.0) \\
+Kostenfunktion & (1.0, 1.0, 1.0) \\
+Abstand Zeitfenster & 300 \\
+Anzahl Zeitfenster & 6 \\
+\hline
+\end{tabular}
+\end{table}
+
 \section{Ergebnisse}
+
+
+
 
 Letzte wird nie parallelisiert bei zacheilas
 Lohrmann hat vorteil, weil 2 Minuten nicht gemessen werden
 Zacheilas bewegt sich im bekannten gefilde
+Selten max erreiht, Ressourcen kein problem
+
