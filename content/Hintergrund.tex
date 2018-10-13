@@ -1,1 +1,6 @@
 \chapter(Hintergrund im CEP-Umfeld)
+
+Einige der ersten Autoren, die elastische Operatoren als Idee vorschlugen, sind Schneider et al. \cite{schneider_elastic_2009}
+Sie schlagen vor, dass der Datenstrom aufgeteilt und von mehreren Instanzen eines Operators bearbeitet wird.
+Für die Parallelisierung nutzen sie eine Warteschlange und mehrere Threads, die jeweils den Operator ausführen zusammen auf einem Rechner liegen.
+Um den Grad der Parallelisierung zu steuern nutzen sie einen Grenzwert-basierten Algorithmus.

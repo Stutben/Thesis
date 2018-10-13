@@ -1,1 +1,180 @@
-\chapter{Parallelisieren von Operatoren}
+\chapter{Elastizität von CEP-Systemen}
+
+In diesem Kapitel wird der Begriff Elastizität für CEP-Systeme und die Notwendigkeit dieser Eigenschaft erläutert.
+Es werden Konzepte, mit denen ein CEP-System den Durchsatz an Daten erhöhen kann und deren Einsatzmöglichkeiten vorgestellt.
+Anschließend werden einige Algorithmen aus der Literatur untersucht, die die Elastizität eines CEP-Systems steuern können.
+Zwei der vorgestellten Algorithmen werden gewählt und im Verlauf dieser Arbeit implementiert und evaluiert.
+
+CEP-Systeme sind datenver
+Die Festlegung, wie der Datenstrom verarbeitet wird, ist durch eine sogenannte Topologie beschrieben.
+Die Topologie wird durch Operatoren, die eine Funktion auf den Daten durchführen, und deren Abfolge definiert.
+
+Das Ziel von CEP-Systemen ist die zuverlässige Verarbeitung von Daten in Realzeit.
+Laut Stonebraker et. al \cite{Laut Stonebraker et. al} ist eine der acht Anforderungen an Datenstromverarbeitung in Realzeit, dass das System skalierbar ist.
+Naturgemäß unterliegen die zu bearbeitenden Datenströme Schwankungen.
+Um diese Schwankungen abzufangen, muss sich das CEP-System, durch das die Daten abgearbeitet werden, an den ankommenden Datenstrom anpassen.
+Ist die Kapazität des Systems zu klein, dann verfallen die Daten oder können nicht mehr unter Realzeit entsprechenden Bedingungen abgearbeitet werden.
+Ein Ansatz ist, dass das System für die maximal auftretende Spitze, sofern diese bekannt ist, konfiguriert wird.
+Dies verursacht jedoch Kosten für Ressourcen, die gegebenenfalls über große Zeiträume nicht genutzt werden.
+Im Zeitalter von Cloud-Computing ist es aber möglich Ressourcen nur dann zu mieten, wenn Sie tatsächlich benötigt werden.
+Es ist daher ökonomisch sinnvoll einen Ansatz zu verfolgen, der die Ressourcen des CEP-Systems so anpasst, dass die Verarbeitung in Realzeit garantiert ist aber die Kosten minimal sind.
+Die Eigenschaft, dass ein System nach Bedarf Ressourcen dynamisch und automatisiert zuweisen oder entfernen kann und somit auf den aktuellen Arbeitsaufwand reagiert, wird als Elastizität bezeichnet \cite{herbst_elasticity_nodate}.
+Daraus folgt, dass ein CEP-System, das die Verarbeitung von Daten in Realzeit zum Ziel hat, nur öknomisch sinnvoll eingesetzt werden kann, wenn es elastisch ist.
+
+Neben dem öknonomischen Aspekt gibt es eine weitere technische Erfordernis für die Elastizität von CEP-Systemen.
+Die genauen Schwankungen und somit auch die Auslastungsspitzen können nicht exakt bestimmt werden.
+Außerdem kann sich die durchschnittliche Menge der Daten im Datenstrom ändern.
+Somit ist eine Anpassung des CEP-Systems zumindest in größeren Zeitabständen notwendig.
+Ein CEP-System, das für eine Anpassung an einen eintreffenden Datenstrom abgeschaltet werden muss, kann währenddesssen keine Daten mehr entgegennehmen.
+Daher verfallen diese oder müssen durch einen Zwischenspeicher aufgefangen werden.
+Beide Methoden verfehlen das Ziel einer konstanten Verarbeitung in Realzeit.
+Deshalb muss ein CEP-System, das Daten zuverlässig in Realzeit verarbeiten soll, elastisch sein.*************zitat
+
+\section{Parallelisierung von Operatoren}
+
+Um ein System an einen anfallenden Arbeitsaufwand anzupassen, muss es skaliert werden.
+Eine triviale Möglichkeit die Leistung eines Systems zu verbessern besteht darin die Rechenleistung oder den Speicher erhöhen.
+Dieser Vorgang wird auch vertikales Skalieren genannt und ist erfolgreich, wenn die hinzugefügte Kapazität ausgeschöft werden kann.
+Jedoch stößt diese Methode an eine Grenze, wenn der physische Rechner keinen Platz für weitere Kapazitäten besitzt.
+Um diese Grenze zu umgehen, kann ein System horizontal skaliert werden.
+Bei dieser Variante wird die Last eines einzelnen Rechner auf weitere andere Rechner verteilt.
+Das horizontale Skalieren ist eine wichtige Vorgehensweise um Systeme im Cloud-Umfeld zu skalieren, da so einfach neue Rechenkapazität hinzugebucht werden kann.
+In der Regel bietet nur horizontales Skalieren die notwenidge Flexibilität für ein elastisches System.
+
+Horizontales Skalieren erfordert jedoch, dass die Anwendung es erlaubt, Tätigkeiten gleichzeitig auf mehreren Rechnern auszuführen zu können.
+Um die Ressourcengewinnung durch horizontaes Skalieren zu nutzen, müssen die Operatoren einer Topologie parallelisiert werden.
+Die parallelisierten Teile des Operators können dann auf unterschiedlichen Rechnern ablaufen.
+Für die Parallelisierung stehen drei Optionen zur Verfügung \cite{de_assuncao_distributed_2017}:
+
+\begin{itemize}
+\item{Parallelisierung durch Fließbandverarbeitung: Operatoren werden dadurch parallelisiert, dass ihre Funktion auf mehrere Operatoren aufgeteilt wird.
+Diese Operatoren werden hintereinander in der Topologie angeordnet.
+Jeder Operator der Reihe kann dann jeweils ein Tupel zur gleichen Zeit bearbeiten.
+Dies erfordert offensichtlich, dass die Funktionalität eines Operators bearbeitet wird und aufgeteilt werden kann.
+Dieses Erfordernis stellt auch die Limitierung des Verfahren dar, da ein Operator nicht beliebig oft geteilt werden kann.
+Um Elastizität zu erreichen ist diese Vorgehensweise nicht ausreichend, da sie limitiert ist und die Funktionen des Operators für den Skaliervorgang verändert werden müssen.}
+
+\item{Parallele Funktionen: Operatoren werden dadurch parallelisiert, dass auf dem gleichen Tupel unterschiedliche Funktionen parallel ausgeführt werden.
+Die Operatoren befinden sich dabei nicht hintereinander sondern werden nebeneinander abgearbeitet.
+Jedes Tupel wird zu jedem der parallel arbeitenden Operatoren gesendet.
+Dieses Vorgehen erfordert, dass die Funktionen der Operatoren es erlauben unabhängig voneinander durchgeführt zu werden.
+Dieses Verfahren wird ebenfalls dadurch limitiert, dass ein Operator nicht in beliebig viele nebenläufige Funktionen aufgeteilt werden kann.
+Zudem bauen in CEP-Systemen die von Operatoren versendeten Ergebnisse per Definition aufeinander auf, weshalb diese Methode ebenfalls ungenügend ist.}
+
+\item{Parallelisierung des Datenstroms: Bei dieser Form der Parallelisierung wird der Datenstrom, den ein Operator verarbeiten muss, aufgeteilt.
+Dafür werden mehrere Instanzen des Operators erzeugt, die die identische Funktion ausführen.
+Die Anzahl der Instanzen ist dabei gleich der Anzahl der geteilten Datenströme und wird als Parallelisierungsgrad des Operators bezeichnet.
+Jede Instanz bekommt dabei einen anderen Ausschnitt des Datenstroms zur Verarbeitung zugewiesen.}
+
+\end{itemize}
+
+Die Parallelisierung des Datenstroms ist sehr effektiv, da die Funktion des Operators für den Skaliervorgang weitestgehend unbekannt sein kann und nicht verändert werden muss.
+Allerdings ist das Aufteilen des Datenstroms schwerer umzusetzen als die beiden anderen Varianten.
+Diese beiden Gründe sorgen dafür, dass diese Art der Parallelisierung die in der Forschung am meisten Untersuchte ist.
+Sie bietet das größte Potential, da sie weniger limitiert ist als die anderen beiden Verfahren, gibt aber auf folgende Problemstellungen auf:
+
+\begin{itemize}
+\item{Die Höhe des Parallelisierungsgrades muss bestimmt werden.}
+\item{Die Aufteilung des Datenstroms muss definiert werden.}
+\item{Falls ein Operator einen Zustand besitzt, muss dieser über alle Instanzen gültig sein.}
+\end{itemize}
+
+Durch die Parallelisierung darf das Ergebnis nicht anders ausfallen, als wenn es durch eine sequentielle Abfolge der Operators berechnet worden wäre.
+Dieses Eigenschaft wird auch als ''safety'' des Operators bezeichnet \cite{gedik_elastic_2014}.
+Deshalb ist essentiell die Aufteilung des Datenstroms und des Zustandes des Operators zu betrachten.
+In der Forschung gibt es viele Arbeiten, die sich mit dieser Problematik auseinandersetzen. ************************Forschungen nennen*******************
+Der Zentrale Themenpunkt der vorliegende Arbeit beschäftigt sich mit der Wahl des Parallelisierungsgrades eines Operators.
+
+\section{Bestimmung des Parallelisierungsgrades}
+
+Das Ziel eines optimalen Parallelisierungsgrades ist, dass das CEP-System die gestellten Anforderungen mit möglichst wenig Ressourcenverbrauch erfüllen kann.
+Um die optimalen Parallelisierungsgrade für die Operatoren einer Topologie zu finden, sind in der Forschung einige Algorithmen vorgestellt worden.
+Diese Algorithmen verwenden Messwerte, die vom CEP-System bereitgestellt werden, um Berechnungen durchzuführen.
+Sinnvollerweise werden die Algorithmen in Cloud-Umgebungen angewandt, da dort Ressourcen zum benötigen Zeitpunkt hinzu gebucht aber abbestellt werden können.
+Ist diese Elastizität für die Ressourcen nicht vorhanden, ist die Optimierung des Parallelisierungsgrades nicht effektiv.
+Da bei der Parallelisierung des Datenstroms der Operator als Blackbox angenommen wird, können Algorithmen aus dem Bereich der reinen Datenstromverarbeitung auf ein CEP-System angewendet werden.
+
+Einige der Algorithmen verwenden Ansätze, die rein auf gemessene Überschreitung eines Grenzwertes reagieren.
+So implementieren Heinze et al. \cite{heinze_auto-scaling_2014} zwei verschiedene Grenzwert-basierte Algorithmen.
+Der lokale Grenzwert-Ansatz skaliert auf Basis der Grenzwerte für Unter-Auslastung beziehungsweise Überlastung eines Rechners. 
+Dabei gibt es nach einer Skalierung eine Zeitperiode, in welcher der Rechner nicht mehr überprüft wird.
+Um häufiges Skalieren zu verhindern wird erst skaliert, wenn der Grenzwert mehrfach überschritten wurde.
+Beim globalen Grenzwert-Ansatz wird, anstatt der Auslastung eines einzelnen Rechners, die durchschnittliche Auslastung des gesamten Systems betrachtet.
+Der Algorithmus skaliert sobald Grenzwerte überschritten werden. 
+Später haben die Autoren den bestehenden Ansatz verbessert, indem sie die Grenzwerte automatisiert über die Optimierung einer Kostenfunktion festgelegt haben\cite{heinze_online_2015}.
+
+Gedik et al. \cite{gedik_elastic_2014} verwenden hingegen einen Ansatz bei dem der Grenzwert nicht für die gemessene Auslastung des Operators definiert wird.
+Sie definieren einen Grenzwert, der beschreibt wie oft der Operator ankommende Tupel nicht aufnehmen konnte.
+Wird der gesetzte Grenzwert überschritten, wird dies als Stauung erkannt.
+Außerdem messen sie den Durchsatz eines Operators und skalieren das System nach oben, wenn eine Stauung auftritt aber nur wenn die Skalierung einen positiven Effekt auf den Durchsatz hat.
+Operatoren werden hingegen nach unten skaliert, wenn keine Stauung auftritt und auf der vorherigen Ebene noch keine Stauung gemessen wurde.
+Die Parallelität des Operators wird pro Schritt um eins verändert.
+
+In ihrem Paper stellen Liu und Buyya \cite{liu_performance-oriented_2017} einen Algorithmus vor, der ein Profil der Operatoren anlegt. 
+Das Profil speichert die CPU-Dauer für Bearbeitung und Serialisierung je Tupel und den RAM, der jeweils für ein Tupels benötigt wird.
+Mit der Anzahl momentan ankommender Tupel kann mit dem Profil des Operators der Ressourcenverbrauch bestimmt werden.
+Außerdem wird über die Serialisierung berücksichtigt, wenn Operatoren auf dem selben Rechner liegen, da diese dann null ist.
+Liegen viele Operatoren auf dem selben Rechner wird insgesamt weniger CPU-Last erzeugt und somit kann auch der Parallelisierungsgrad kleiner ausfallen.
+Der Parallelisierungsgrad wird über Grenzwerte für die Parameter CPU für Bearbeitungsdauer, CPU für Serialisierung und RAM-Verbrauch berechnet.
+Immer wenn der Gesamtverbrauch des Operators einen der Grenzwerte überschreitet, wird er so lange aufgeteilt bis der Grenzwert eingehalten wird.
+
+Hidalgo et al. verwenden ebenfalls einen Grenzwert-basierten Ansatz der die Auslastung des Operators begrenzt.
+Sie stellen dazu einen Algorithmus vor, der kurzzeitig reaktiv auf Schwankungen reagiert.
+Allerdings wird zusätzlich noch eine weitere Variante verwendet, die den Parallelisierungsgrad auf Basis von Vorhersagen der ankommenden Tupel berechnet.
+Diese Vorhersagen werden mithilfe einer Markov-Kette berechnet.
+
+Andere Ansätze beruhen ausschließlich auf der Vorhersage der Menge von Tupeln und der Bearbeitungslatenz.
+Diese Ansätze versuchen das System präventiv zu skalieren, wenn in der Zukunft eine Änderung des Arbeitsaufkommens vorhergesagt wird.
+So stellen Kombi et al. \cite{kombi_preventive_2017} einen Ansatz vor, bei dem die Last des Operators aus der zu erwartenden Anzahl ankommender Tupel und der Latenz der Verarbeitung eines Tupels vorhergesagt wird.
+Außerdem verwendet der Algorithmus zusätzlich eine Vorhersage der Ausgangstupel des Vorgänger-Operators um die Input-Tupel des zu betrachtenden Operators zu bestimmen.
+Der Operator wird für den höheren Wert aus beiden Vorhersagen skaliert.
+
+Einen anderen Algorithmus der auf Vorhersage basiert schlagen Zacheilas et al. vor \cite{zacheilas_elastic_2015}.
+Dabei arbeiten Sie mit Gauss-Prozessen.
+Die Vorhersage bestimmt die Anzahl eingehender und ausgehender Tupel eines Operators zu zukünftigen Zeitpunkten.
+Draus bestimmen die Autoren die Anzahl Tupel, die vom Operator nicht verarbeitet werden können.
+Die nicht verarbeiteten Tupel sind eine Variable für die Kostenfunktion aus der ein Graph mit möglichen zukünftigen Zustandsübergängen aufgebaut wird.
+Der Operator wird anhand der Zustandsübergänge des kürzesten Pfades durch den Graphen skaliert.
+
+Eine weitere Gruppe von Algorithmen benutzt das Modell der Warteschlangen-Theorie um das Verhalten von Tupeln vor einem Operator zu beschreiben.
+In der Arbeit von Mayer et al. \cite{mayer_predictable_2015} schlagen die Autoren einen Ansatz mit Warteschlangen-Theorie vor.
+Außerdem bezieht sich die Arbeit als eine der wenigen direkt auf CEP-Systeme.
+Die Autoren verfolgen das Ziel, die Warteschlange von Tupeln vor einen Operator unter einem benutzerdefinierten Grenzwert zu halten.
+Um die Länge der Warteschlange zu bestimmen wird ein mathematisches Modell aus der Warteschlangetheorie verwendet.
+Dazu werden die benötigten Werte für das Modell gemessen und mithilfe der Methoden der Zeitreihenanalyse vorhergesagt.
+Die Autoren berechnen mit den vorhergesagten Messwerten und dem Profil des Operators die Wahrscheinlichkeit, dass die Warteschlange kürzer oder gleichlang wie der maximale Grenzwert ist.
+Liegt diese Wahrscheinlichkeit über einem benutzerdefinierten Grenzwert, wird der Parallelisierungsgrad so lange angepasst, bis der Grenzwert erreicht wird.
+
+Ein weiterer präventiver Ansatz mit dem Modell der Warteschlangen-Theorie wurde von Matteis et al. vorgeschlagen.
+Für Ihr Modell messen die Autoren die Rate aller ankommenden Tupel sowie die durchschnittliche Verarbeitungsdauer eines Operators.
+Anschließend wird eine Vorhersage basierend auf der Zeitreihe der gemessenen Werte durchgeführt. 
+Die Autoren nennen den gleitenden Durchschnitt als möglichen Ansatz, legen aber kein spezielles Vorhersagemodell fest. 
+Mit der Vorhersage kann die zukünftige Antwortzeit eines Operators berechnet werden.
+Sie ist die Summe aus durchschnittlicher Bearbeitungsdauer und der Zeit, für die sich ein Event in der Warteschlange des Operators befindet.
+Für die Bestimmung des Parallelisierungsgrades wird eine Kostenfunktion optimiert, welche abhängig vom Parallelisierungsgrad und der Antwortzeit ist.
+Diese berücksichtigt die Kosten durch Ressourcenverbrauch, Kosten für das Skalieren und die Kosten für Verletzung der maximal festgelegten Antwortzeit eines Operators. 
+
+Ein weiterer Algorithmus mit Warteschlangen-Theorie wurde von Lohrmann et al. vorgeschlagen \cite{lohrmann_elastic_2015}.
+Das Ziel des Algorithmus es Latenzen für die Bearbeiten eines Tupels einzuhalten.
+Dazu wird ein benutzerdefinierter Grenzwert festgelegt.
+Mit den im System erfassten Messwerten berechnet der Algorithmus reaktiv mit Hilfe der Warteschlangen-Theorie die Gesamtlatenz des Tupels.
+Der Parallelisierungsgrad des Operators wird Schrittweise erhöht, bis die Gesamtlatenz unter dem Maximalwert liegt.
+
+Wie zuvor beschrieben kann die Elastizität eines CEP-Systems nur in einer Cloud-Umgebung sinnvoll genutzt werden.
+Deshalb gibt es auch Algorithmen die die Bereitstellung von Cloud-Ressourcen berücksichtigen.
+Ein Algorithmus dieser Art schlagen Hochreiner et al. vor.
+Für die Elastizität des Systems berücksichtigen die Autoren die Zeiteinheit der Rechnungsstellung um bereits bezahlte Ressourcen nicht vorzeitig zurück zu geben.
+Ressourcen mit kürzerer Laufzeit werden früher zurückgegeben falls nach unten skaliert wird.
+Der Algorithmus skaliert die Operatoren, sobald die benutzerdefinierten Grenzwerte für Überlastung oder Unterbelastung überschritten werden.
+
+Für die genauerer Betrachtung in dieser Arbeit wurde je ein Algorithmus der präventiv agiert und einen der reaktiv agiert ausgewählt.
+Zudem sollten die Algorithmen verschiedene Modelle besitzen.
+Im weiteren Verlauf der Arbeit wird zum einen der Algorithmus von Lohrmann et al. als rein reaktiver Ansatz mit dem Warteschlangen-Modell implementiert und betrachtet.
+Dessen Ziel ist die konstante Einhaltung der Latenz eines Tupels.
+Außerdem wurde der Algorithmus von Zacheilas et al. als rein präventiver Algorithmus gewählt.
+Dieser wählt den Parallelisierungsgrad durch die Optimierung einer Kostenfunktion über einen Graphen.
+Die exakte Funktionsweise und die vorliegende Implementation der Algorithmen ist in Kapitel ************************************* beschrieben.
+
+
+
+
