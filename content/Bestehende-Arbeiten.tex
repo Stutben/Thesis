@@ -9,17 +9,18 @@ Unter anderem beschreiben Sie auch die Algorithmen, die für die Parallelisierun
 Sattler et al. \cite{sattler_towards_2013} diskutieren in ihrer Arbeit typische Muster, die bei elastischem Verarbeiten von Datenströmen auftreten.
 
 Für die Verarbeitung von Datenströmen wurden bereits einige Systeme vorgeschlagen und implementiert.
-Die Autoren Lohrmann et al. \cite{lohrmann_nephele_2014} stellen mit Nephele ein System vor, das die Größe der Ausgangszwischenspeicher dynamisch zur Laufzeit anpassen kann, um so Einfluss auf Latenz und Durchsatz zu nehmen.
+Die Autoren Lohrmann et al. \cite{lohrmann_nephele_2014} stellen mit Nephele ein System vor, das die Größe der Ausgangszwischenspeicher dynamisch zur Laufzeit anpassen kann.
+So kann das System die Latenz und Durchsatz von Tupeln beeinflussen.
 Akidau et al. \cite{akidau_millwheel:_2013} stellen in ihrer Arbeit MillWheel vor.
 Das von Google stammende System wurde speziell für Skalierbarkeit und Fehlertoleranz implementiert.
 Ein anderes von Twitter entwickeltes System wird von den Autoren Kulkarni et al. beschrieben \cite{kulkarni_twitter_2015}.
-Heron wurde auf der Basis von Apache Strom implementiert, da dieses die von Twitter gestellten Anforderungen nicht mehr erfüllen konnte.
+Ihr System Heron wurde auf der Basis von Apache Strom implementiert, da dieses die von Twitter gestellten Anforderungen nicht mehr erfüllen konnte.
 
 Es gibt jedoch auch System, die speziell für CEP ausgelegt sind.
 In \cite{wu_high-performance_2006} stellen Wu et al. das CEP-System vor SASE vor, das speziell für die Abfrage von RFID-Events implementiert wurde.
 Für die Abfrage der Events wurde von den Autoren eine eigene Sprache entwickelt.
 Ein weiteres CEP-System wurde durch Cugola et al. vorgestellt \cite{cugola_complex_2012}.
-Das System T-Rex verwendet die von den selben Autoren erstellte Sprache TESLA \cite{cugola_tesla:_2010} zur Definition der Abfragen. 
+Deren System T-Rex verwendet die von den selben Autoren entwickelte Sprache TESLA \cite{cugola_tesla:_2010} um Abfragen zu definieren. 
 Eines der bekannteren Frameworks für CEP ist Esper \cite{noauthor_home_nodate}, welches auch als kommerzielle Version für Hochverfügbarkeit angeboten wird.
 
 Außerdem beschäftigen sich viele Arbeiten mit der Elastizität der Systeme.
@@ -28,14 +29,14 @@ Zum einen gibt es Arbeiten, die den Parallelisierungsgrad eines Operators mithil
 
 Um die Parallelisierung möglich zu machen, ist es notwendig dass ein Mechanismus existiert, der Datenströme aufteilt.
 Zacheilas et al. beschreiben einen Ansatz, der parallelisierte Datenströme anhand ihrer unterschiedlichen Last optimal auf Rechner eines Clusters verteilt \cite{zacheilas_dynamic_2016}.
-In \cite{balkesen_adaptive_2013} beschreiben Balkesen et al. eine Vorgehensweise, die mehrere eingehende Datenströme aufteilen.
-In ihrem Paper schlagen die Autoren eine spezielle Vorgehensweise für Operatoren vor, die Fenster verarbeiten.
-Sie ermöglichen es damit selbst verschiebende Fenster an verschiedenen Instanzen des Operators weiterzugeben.
-Mayer et al. \cite{mayer_predictable_2015} beschreiben ebenfalls einen Ansatz für um einen Datenstrom aufzuteilen.
-Entgegen der oft verwendeten Verfahren, die auf einem Schlüssel im Tupel basieren, definieren die Autoren Partitionen im Splitter.
+In \cite{balkesen_adaptive_2013} beschreiben Balkesen et al. eine Vorgehensweise, die mehrere eingehende Datenströme gleichmäßig teilt.
+In ihrem Paper schlagen die Autoren zudem eine spezielle Vorgehensweise für Operatoren vor, die Fenster verarbeiten.
+Sie ermöglichen es gleitende Fenster an verschiedene Instanzen des Operators weiterzugeben.
+Mayer et al. \cite{mayer_predictable_2015} beschreiben ebenfalls einen Ansatz, mit dem sie einen Datenstrom aufteilen.
+Entgegen der oft verwendeten Verfahren, die auf einem Schlüssel im Tupel basieren, definieren die Autoren Partitionen.
 Eine Partition wird durch Prädikate definiert, welche eine Partition starten und wieder schließen.
 Jedes Tupel wird auf diese Prädikate geprüft.
-Alle Tupel die zwischen einem Start und einem Ende der Partition den Operator erreichen gehören zur Partition.
+Alle Tupel, die zwischen einem Start und dem Ende der Partition den Operator erreichen, gehören zur Partition.
 Partitionen sind den Instanzen des Operators zugewiesen.
 
 Ein weiteres Feld der Forschung ist die Migration des Zustandes eines Operators.
@@ -53,15 +54,16 @@ Jedoch verteilen Sie bei ihrem Ansatz die Schlüssel nicht komplett neu.
 Nur die Partitionen, deren Schlüssel einer neuen Instanz zugewiesen wurde trennen den spezifizierten Bereich ab.
 Alle anderen Instanzen, deren Partitionen nicht betroffen sind, können so weiterhin die eintreffenden Tupel verarbeiten.
 
-Zuletzt müssen Parallelisierte Operatoren noch auf die Rechner eines Clusters verteilt werden.
+Zuletzt müssen parallelisierte Operatoren noch auf die Rechner eines Clusters verteilt werden.
 Dabei sollten die Lasten möglichst gleichmäßig aufgeteilt sein.
-Zusätzlich gilt es zu beachten, dass Operatoren, die auf dem selben Rechner sind, mit geringerem Aufwand miteinander kommunizieren können.
+Zusätzlich gilt es zu beachten, dass Operatoren mit sehr geringem Aufwand kommunizieren können, wenn Sie auf dem gleichen Rechner ausgeführt werden.
 Heinze et al. betrachten das Problem als inkrementelles Behälterproblem \cite{heinze_latency-aware_2014}.
-Für die Lösung des Problems ordnen Sie alle neu zu verteilenden Instanzen absteigend nach CPU-Anforderungen und fügen Sie dem ersten Rechner zu, der genug CPU frei hat.
-Zusätzlich werden Rechner bevorzugt auf dem benachbarte Operatoren liegen.
-Einen anderen Ansatz schlagen Ying Xing et al vor \cite{ying_xing_dynamic_2005}.
-Sie berechnen eine Punktzahl für die Kombination zwischen jeder Instanz und jedem Rechner.
-Anschließend werden die Instanzen einzeln dem Rechner zugewiesen, der am meisten Kapazität zur Verfügung hat.
-Es wird immer die Instanz zugewiesen, die die höchste Punktzahl in Kombination mit dem Rechner ausweist.
+Für die Lösung des Problems ordnen Sie alle neu zu verteilenden Instanzen absteigend nach CPU-Anforderungen.
+Anschließend fügen Sie die Instanzen nacheinander dem ersten Rechner zu, der genug CPU frei hat.
+Zusätzlich werden Rechner bevorzugt auf denen benachbarte Operatoren liegen.
+Einen anderen Ansatz schlagen Ying Xing et al. vor \cite{ying_xing_dynamic_2005}.
+Sie berechnen eine Punktzahl für alle Kombinationen von je einer Instanz und einem Rechner.
+Anschließend wird der Rechner bestimmt, der am meisten Kapazität zur Verfügung hat.
+Dann wird immer die Instanz zugewiesen, die die höchste Punktzahl in Kombination mit dem gefundenen Rechner ausweist.
 
 

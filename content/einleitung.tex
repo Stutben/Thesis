@@ -2,55 +2,61 @@
 
 \chapter{Einleitung}
 
-Immer mehr Geräte werden heute mit dem Internet vernetzt um unter anderem Informationen aus deren Verwendung zu erhalten.
+Immer mehr Geräte werden heute mit dem Internet vernetzt.
 Aufgrund der zunehmenden Vernetzung steigt die Menge der verfügbaren Daten enorm an.
-Die große Anzahl der erzeugter Daten formiert sich dabei an den Endpunkten, zu denen sie geschickt werden, zu einem nicht endenden Zustrom von Daten.
+Die große Anzahl der erzeugter Daten formiert sich dabei an den Endpunkten, zu denen sie geschickt werden, zu einem nicht endenden, kontinuierlichen Zustrom von Daten.
 
 Aus diesem Grund ist das Interesse in der Forschung im Bereich Datenstrom-Verarbeitung in den letzten Jahren stark aufgelebt.
 Eine Möglichkeit die eingehenden Daten zu verarbeiten ist Complex-Event-Processing (CEP).
 Bei dieser Methode werden SQL-ähnliche Abfragesprachen verwendet um den Datenstrom zu untersuchen.
 Die Abfrage kann sich dabei über mehrere Tupel im Datenstrom erstrecken und komplexe Muster erkennen.
-Wird ein Muster gefunden, wird dies typischerweise mit einem Event an eine Nachfolgende Stelle vermeldet.
-Diese kann ebenfalls wieder eine Mustererkennung auf den erhaltenen Events durchführen.
+Wird ein Muster gefunden, wird dies typischerweise mit einem Event an eine nachfolgende Stelle signalisiert.
+Diese kann ebenfalls wieder eine Mustererkennung auf den erhaltenen Signalen durchführen.
 So können mehrschichtige Systeme entstehen, die immer höherwertig werdende Informationen aus einem einfachen Datenstrom in Realzeit filtern können.
 
 Ein Problem bei der Verarbeitung von Daten in Realzeit ist, dass die eingehenden Datenmengen Schwankungen unterliegen.
-Ein triviales Beispiel ist, dass Nachts weniger Geräte verwendet werden als tagsüber.
-Die Schwankung, die Nachts auftritt, ist vorhersehbar.
+Ein triviales Beispiel ist, dass nachts weniger Geräte verwendet werden als tagsüber.
+Die Schwankung, die während der Nacht auftritt, ist vorhersehbar.
 Es gibt jedoch auch Erhöhungen der Datenmengen die nicht zwingend im Voraus erkennbar sind.
 In solchen Fällen muss sich die Verarbeitung der Daten dennoch an die Schwankung des Datenstroms anpassen.
 Die Fähigkeit des arbeitenden Systems, eine solche Anpassung an den anfallenden Arbeitsaufwand vorzunehmen, wird als Elastizität bezeichnet.
-Ein essentieller Beitrag zur Elastizität eines Systems liefern Cloud-Umgebungen, die es möglich machen Ressourcen dynamisch zu mieten mieten.
+Ein essentieller Beitrag zur Elastizität eines Systems liefern Cloud-Umgebungen, die es möglich machen Ressourcen dynamisch zu mieten.
 
 Um die Möglichkeiten der Cloud zu nutzen, muss das System selbst erst in der Lage sein dynamisch zu skalieren.
 In den letzten Jahren hat sich die Forschung damit beschäftigt, wie sich Elastizität in der Datenstromverarbeitung umsetzen lässt.
-Dabei sind verschiedene Problemstellungen zu lösen.
+Dabei sind verschiedene Problemstellungen identifiziert und gelöst worden.
 Diese Problemstellungen werden in dieser Arbeit behandelt.
 Nahezu alle der vorgestellten Lösungen wurden dabei für ein bestimmtes System entwickelt.
-Das Ziel dieser Arbeit ist es, die generelle Einsatzfähigkeit der in der Forschung vorgestellten Lösungen für verschiedene CEP-Systeme zu ermöglichen und zu evaluieren.
+Das Ziel dieser Arbeit ist es, die generelle Einsatzfähigkeit, der in der Forschung vorgestellten Lösungen, für verschiedene CEP-Systeme zu ermöglichen und zu evaluieren.
 
 Die vorliegende Arbeit beschreibt zuerst die Elastizität von CEP-Systemen und deren Notwendigkeit.
-Werden die Problemstellungen definiert, die sich für elastische CEP-Systeme ergeben.
-Anschließend werden verschiedene Lösungen aus der Forschung vorgestellt, die für ein automatisiertes Skalieren des CEP-System entwickelt wurden.
-Der Fokus in dieser Arbeit liegt dabei auf der Bestimmung des Parallelisierungsgrades der Operatoren in einer CEP-Topologie.
-Zwei dieser Algorithmen werden gewählt und im Rahmen der Arbeit implementiert und evaluiert.
+Daraus werden die Problemstellungen definiert, die sich für elastische CEP-Systeme ergeben.
+Anschließend werden verschiedene Lösungen aus der Forschung vorgestellt, die für ein automatisiertes Skalieren eines CEP-Systems entwickelt wurden.
+Der Fokus in dieser Arbeit liegt darin die Parallelisierungsgrade der Operatoren in einer CEP-Topologie zu bestimmen.
+Zwei Algorithmen, die dieses Problem lösen, werden gewählt und im Rahmen der Arbeit implementiert und evaluiert.
 
 Um die Algorithmen für verschiedene CEP-Systeme verfügbar zu machen, wird im weiteren Verlauf dieser Arbeit ein Framework implementiert.
-Zielsetzung des Frameworks ist, dass Algorithmen, die den Parallelisierungsgrad einer Topologie steuern, unabhängig vom zu steuernden CEP-System implementiert werden können.
+Zielsetzung des Frameworks ist, dass Algorithmen, die den Parallelisierungsgrad einer Topologie steuern, unabhängig vom CEP-System implementiert werden können.
 Es soll ermöglicht werden, dass implementierte Algorithmen wiederverwendbar sind und für diverse CEP-Systeme eingesetzt werden können.
 Dazu stellt das Framwork eine API zur Verfügung, die das in der Forschung verwendete Graphen-Modell nachbildet.
 Auf Basis dieser API können Algorithmen implementiert werden, sodass sie auf dem abstrahierten Modell einer CEP-Topologie arbeiten.
-Die Erstellung des Topologie-Modells wird dabei automatisiert vom Framework übernommen und vom realen CEP-System ausgelesen.
+Für die Erstellung des Topologie-Modells wird automatisiert vom Framework übernommen.
+Das Framework liest dazu die Topologie aus dem realen CEP-System aus und stellt diese anschließend als Graphen-Modell bereit. 
 
-Um das Framework an verschiedene CEP-Systeme anbinden zu können wird anschließend eine bestehende Lösung \cite{goggel_vergleich_2018} verwendet und erweitert.
+Um das Framework an verschiedene CEP-Systeme anbinden zu können, wird im darauf folgenden Teil der Arbeit eine bestehende Lösung \cite{goggel_vergleich_2018} verwendet und erweitert.
 Die Idee der Lösung ist, dass eine einheitliche REST-Schnittstelle verwendet wird um verschiedene CEP-Systeme zu steuern.
 Für jedes CEP-System kann so unabhängig ein Adapter erstellt werden, der die Spezifika des CEP-Systems kapselt und über die einheitliche REST-Schnittstelle zur Verfügung stellt.
 Die REST-Schnittstelle wird in der vorliegenden Arbeit stark erweitert, sodass die für das Graphen-Modell notwendigen Informationen bereit gestellt werden können.
 Anschließend wird der bestehende Adapter für Heron so angepasst, dass er die aktualisierte Version der REST-Schnittstelle implementiert.
 
-Nachdem die Grundlage durch das Framework geschaffen ist, werden zwei Algorithmen aus der Forschung für die Bibliothek des Frameworks implementiert.
+Nachdem die Grundlage durch das Framework geschaffen ist, werden zwei in der Forschung vorgeschlagene Algorithmen für die Bibliothek des Frameworks implementiert.
+Die gewählten Algorithmen unterscheiden sich dabei bewusst in ihrem zugrundeliegenden Modell.
+Einer der Algorithmen berechnet den Parallelisierungsgrad reaktiv mit Hilfe des Modells der Warteschlangen-Theorie.
+Der andere arbeitet präventiv und berechnet den Parallelisierungsgrad durch die Optimierung einer Kostenfunktion.
 Für die Implementation werden entsprechende Anpassungen und Verbesserungen an den Algorithmen umgesetzt und beschrieben.
+
 Zuletzt werden die beiden Implementationen evaluiert.
-Dazu wurde im Rahmen dieser Arbeit eine Topologie für Heron entwickelt, die Tweets von der Streaming-API von Twitter auf Merkmale wie Hashtags oder Länge analysiert.
-Für die Evaluation der Algorithmen steuern diese den Parallelisierungsgrad der Topologie nacheinander auf dem selben Datensatz.
+Dazu wurde im Rahmen dieser Arbeit eine Topologie für Heron entwickelt.
+Diese analysiert Tweets von der Twitter-Streaming-API auf Merkmale wie Hashtags oder Textlänge.
+Für die Evaluation der Algorithmen steuern diese nacheinander den Parallelisierungsgrad der Topologie während der Analyse auf dem selben Datensatz.
 Die Diskussion der Ergebnisse aus der Evaluation findet im letzten Teil der Arbeit statt.

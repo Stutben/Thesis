@@ -1,10 +1,10 @@
 \chapter{Algorithmus mit Warteschlangen-Theorie}
 
-Lohrmann et al. beschreiben in ihrem Paper \cite{lohrmann_elastic_2015} einen Algorithmus, der das Ziel verfolgt, die Latenz der Tupel einer Topologie unter einem, durch den Benutzer bestimmten, Maximalwert zu halten.
+Lohrmann et al. beschreiben in ihrem Paper \cite{lohrmann_elastic_2015} einen Algorithmus, der das Ziel verfolgt, die Tupel-Latenz einer Topologie unter einem, durch den Benutzer bestimmten, Maximalwert zu halten.
 Dieses Ziel soll mit einem möglichst geringen Verbrauch von Ressourcen erreicht werden.
-Die Latenz eines Tupels bestimmt sich aus der Zeit, welche das Tupel benötigt um von der Quelle zum Konsument zu gelangen.
+Die Latenz eines Tupels bestimmt sich aus der Zeit, die das Tupel benötigt um von der Quelle zum Konsument zu gelangen.
 
-Dementsprechend ist die Wahl des Pfades für die Latenz des Tupels essentiell, da die sie mindestens die Summe der Latenz aller Operatoren in einem Pfad ist.
+Dementsprechend ist die Wahl des Pfades für die Tupel-Latenz essentiell, da die sie mindestens die Summe der Latenz aller Operatoren in einem Pfad ist.
 Außerdem fließt die Zeit, in der Tupel sich zwischen Operatoren bewegen, in die Latenz des Tupels mit ein.
 Einerseits beinhaltet dies die Latenz des Netzwerks, über das die Tupel versendet werden.
 Diese Latenz kann jedoch nicht durch reines Skalieren der Operatoren beeinflusst werden, sondern ist von deren Platzierung abhängig.
@@ -14,85 +14,89 @@ Diese Zeit zwischen Ankunft und Bearbeitung wird in dem Algorithmus durch ein Mo
 Die Dauer, in der sich ein Tupel in der Warteschlange vor der Bearbeitung durch den Operator befindet, wird folgend als Wartezeit bezeichnet.
 Der Algorithmus bedient sich der Kingman-Formel aus der Warteschlangen-Theorie um die Wartezeit zu berechnen.
 Sie modelliert eine Warteschlange mit einem einzelnen Abnehmer.
-Da die genannten Faktoren alle vom gewählten Pfad des Tupels abhängig sind, kann man auch von der Latenz eines Pfades sprechen.
+Da die genannten Faktoren alle vom gewählten Pfad des Tupels abhängig sind, kann man auch von der Latenz eines Pfades oder Pfad-Latenz sprechen.
 
 Der Algorithmus von Lohrmann et al. berechnet mit Hilfe der Warteschlangentheorie die Latenz eines Pfades.
-Diese Berechnung wird für alle Pfade der Topologie ausgeführt.
-Er vergleicht pro Pfad die berechneten Werte mit dem für den Pfad gegebenen Maximalwert für die Latenz.
-Der Maximalwert der Latenz des Pfades muss vom Benutzer angegeben werden, bevor der Algorithmus ausgeführt wird.
+Diese wird für alle Pfade der Topologie berechnet.
+Er vergleicht pro Pfad die berechneten Werte mit dem gegebenen Maximalwert für die Pfad-Latenz.
+Der Maximalwert der Pfad-Latenz muss vom Benutzer angegeben werden, bevor der Algorithmus ausgeführt wird.
 Der Algorithmus versucht den gegebenen Maximalwert für die Latenz des Pfades mit dem geringsten Ressourcenverbrauch zu erreichen.
 Die Latenz eines Operators wird im Modell des Algorithmus als konstant angenommen. 
-Die Wartezeit verändert sich nach der Formel von Kingman mit der Parallelisierungsgrad des Operators.
-So stellt die Wartezeit die einzige Möglichkeit dar um die Latenz des Pfades zu anzupassen.
+Die Wartezeit verändert sich nach der Formel von Kingman mit dem Parallelisierungsgrad des Operators.
+So stellt die Wartezeit die einzige Möglichkeit dar die Pfad-Latenz zu anzupassen.
 
 Um minimale Ressourcen zu verbrauchen, startet der Algorithmus bei dem minimalen Parallelisierungsgrad für alle Operatoren.
-Schrittweise berechnet er dann, bei welchem Operator eine Erhöhung des Parallelisierungsgrades um eins die größte Verringerung der Latenz des Pfades zur Folge hat.
-Außerdem bestimmt der Algorithmus den Operator, welcher den zweitgrößten Effekt auf die Latenz des Pfades hat.
-Für den Operator mit dem größten Effekt wird dann durch die von Lohrmann et al. definierte Funktion \(P_\Delta\) ein neuer Parallelisierungsgrad bestimmt.
-Diese berechnet den neuen Parallelisierungsgrad in Abhängigkeit zum Operator mit dem zweitgrößten Effekt.
+Schrittweise berechnet er dann, bei welchem Operator eine Erhöhung des Parallelisierungsgrades um eins die größte Verringerung der Pfad-Latenz zur Folge hat.
+Außerdem bestimmt der Algorithmus den Operator, der den zweitgrößten Effekt auf die Pfad-Latenz hat.
+Für den Operator mit dem größten Effekt wird dann ein neuer Parallelisierungsgrad bestimmt.
+Dieser wird durch die von Lohrmann et al. definierte Funktion \(P_\Delta\) berechnet.
+Sie berechnet den neuen Parallelisierungsgrad in Abhängigkeit zum Operator mit dem zweitgrößten Effekt.
 So soll verhindert werden, dass der Parallelisierungsgrad eines Operators mehrfach hintereinander um eins erhöht wird.
 Stattdessen wird der Parallelisierungsgrad des gewählten Operators von \(P_\Delta\) so weit erhöht, dass in der nächsten Runde ein anderer Operator gewählt wird.
 Diese Schritte werden so lange durchgeführt, bis der Pfad eine Latenz unter dem definierten Maximalwert aufweist.
 
-\section{Implementation}
+\section{Implementierung}
 
-Im Folgenden sollen die Besonderheiten und Abweichungen vom Original in der vorliegenden Implementation des Algorithmus ausführlich diskutiert werden.
+Im Folgenden sollen die Besonderheiten, bei denen die vorliegende Implementation vom Original des Algorithmus abweicht, ausführlich diskutiert werden.
 Die Implementation des Algorithmus von Lohrmann et al. verwendet das vorgestellte Graph-Modell.
 
 \subsection{Latenz eines Tupels}
-Eine weitere Feststellung ist für die Berechnung der Latenz eines einzelnen Tupels notwendig.
-Laut Lohrmann et al. wird diese von dem Zeitpunkt an dem das Tupel von der Quelle emittiert wird bis zu dem Zeitpunkt an dem das Tupel an dem Konsument aufgenommen wird berechnet. 
-Dabei ist nicht eindeutig definiert, ob die Latenz des Konsument-Operators berücksichtigt wird. 
-In der vorliegenden Implementation wird die Latenz des Konsumentes ebenfalls zur Gesamtlatenz des Tupels gezählt.
+Zuerst soll die Latenz eines einzelnen Tupels exakt definiert werden.
+Laut Lohrmann et al. wird diese von dem Zeitpunkt, an dem das Tupel von der Quelle ausgegeben wird, bis zu dem Zeitpunkt, an dem das Tupel an dem Konsument bearbeitet wird, berechnet. 
+Dabei ist nicht eindeutig definiert, ob die Task-Latenz des Konsumenten berücksichtigt wird. 
+In der vorliegenden Implementation wird die Task-Latenz des Konsumenten ebenfalls zur Tupel-Latenz gezählt.
 
 \subsection{Initialisierung}
-Für die fehlerfreie Berechnung des Parallelisierungsgrades ist es notwendig, dass das Modell so initialisiert ist, dass die zwischengespeicherten Messwerte größer als 0 sind.
-Ist dies nicht der Fall kann es zu Divisionen durch 0 führen.
-Daher wird vor der eigentlichen Ausführung des Algorithmus das Modell auf die korrekte Initialisierung geprüft. 
-Falls dies nicht zutrifft, wird eine IllegalStateException geworfen, welche angibt, dass das Modell nicht ordnungsgemäß initialisiert ist.
+Um den Parallelisierungsgrad fehlerfrei berechnen zu können ist es notwendig, dass das Modell so initialisiert ist, dass die zwischengespeicherten Messwerte größer als null sind.
+Ist dies nicht der Fall kann das zu Divisionen durch null führen.
+Daher wird vor der eigentlichen Ausführung des Algorithmus geprüft, ob das Modell korrekt initialisiert ist.
+Falls dies nicht zutrifft, wird eine IllegalStateException geworfen, die angibt, dass das Modell nicht ordnungsgemäß initialisiert ist.
 
 \subsection{Minimaler Parallelisierungsgrad und Flaschenhals}
 Die Wartezeit von Operator \(i\) wird von Lohrmann et. al mit der folgenden Funktion berechnet: \cite{lohrmann_elastic_2015}:
 \[W(p_i^\ast) = e \left( \frac{\lambda_i {S}^{2}_{i} p_i}{p_i^\ast-\lambda_i {S}_i p_i}\right)\left(\frac{{c^{2}_{Ai}} + {c^{2}_{Si}}}{2}\right)\]
-Der Wert des Koeffizienten \(e\) resultiert aus einer Angleichung der Ergebnisse des Modells an die Messwerte des realen CEP-Systems.
-Er wird im nächsten Kapitel gesondert diskutiert.
-\(\lambda\) ist die durchschnittliche Tupel-Ankunftsrate pro Millisekunde welche mit \[\frac{1}{Tupel-Ankunftsintervall}\] berechnet wird. 
+Der Wert des Koeffizienten \(e\) gleicht die berechneten Ergebnisse des Modells an die Messwerte des realen CEP-Systems an.
+Er wird in einem folgenden Kapitel gesondert diskutiert.
+\(\lambda\) ist die durchschnittliche Tupel-Ankunftsrate pro Millisekunde, die mit \[\frac{1}{Tupel-Ankunftsintervall}\] berechnet wird. 
 \({S}\) beschreibt die Bearbeitungsdauer in Millisekunden.
 \(p\) ist der aktuelle Parallelisierungsgrad des Operators.
-Die aktuellen Messwerte aus dem CEP-System sind für diesen Parallelisierungsgrad gültig.
-\(p^\ast\) ist der potentielle neue Parallelisierungsgrad des Operators.
-Der Algorithmus versucht die Wartezeit durch das optimieren von \(p^\ast\) so anzupassen, dass die Latenzbeschränkung des Pfades eingehalten wird. Dabei aber möglichst wenig Ressourcen verwendet werden.
+Die aktuellen Messwerte aus dem CEP-System sind für diesen aktuellen Parallelisierungsgrad gültig.
+Der potentielle neue Parallelisierungsgrad des Operators ist \(p^\ast\).
+Indem \(p^\ast\) optimiert wird versucht der Algorithmus die Wartezeit so anzupassen, dass die Latenzbeschränkung für die Tupel-Latenz eingehalten wird.
+Gleichzeitig sollen dafür möglichst wenig Ressourcen verwendet werden.
 Der letzte Teil der Formel berechnet einen Koeffizienten aus den Varianzen der Bearbeitungsdauer und der Tupel-Ankunftsrate.
 Essentiell für die folgenden Ausführungen ist vor allem der Nenner \(p_i^\ast-\lambda_i {S}_i p_i\).
 
 Ein wichtiges Detail ist, dass ein negativer Nenner für die Funktion nicht sinnvoll ist.
-Da die anderen beiden Koeffizienten immer positiv sind würde ein negativer Nenner im Ergebnis zu einer negativen Wartezeit führen.
-Eine negative Wartezeit ist aber real nicht möglich, deswegen ist die Formel für diesen Anwendungsfall ungültig, wenn sie einen negativen Nenner besitzt.
-Des Weiteren ist die Funktion offensichtlich ungültig wenn nach der Subtraktion im Nenner eine Null steht.
+Da die anderen beiden Koeffizienten immer positiv sind, würde ein negativer Nenner im Ergebnis zu einer negativen Wartezeit führen.
+Eine negative Wartezeit ist aber real nicht möglich.
+Deswegen ist die Formel für diesen Anwendungsfall ungültig, wenn sie einen negativen Nenner besitzt.
+Des Weiteren ist die Funktion offensichtlich ungültig, wenn nach der Subtraktion eine null im Nenner  steht.
 
 Um diese Probleme zu verhindern legen Lohrmann et al. fest, dass die Berechnungen des Algorithmus nur gültig sind, wenn in der Topologie keine Flaschenhälse vorhanden sind.
 Ein Flaschenhals wird als ein Operator mit einer Auslastung von 100\% oder nahe 100\% definiert.
-Um einen Flaschenhals aufzulösen wird im vorgeschlagenen Algorithmus der Parallelisierungsgrad des Operators verdoppelt. Falls die Auslastung höher als eins ist, wird der Parallelisierungsgrad noch mit der momentanen Auslastung multipliziert. Da der Parallelisierungsgrad eine Ganzzahl sein muss, muss das Produkt zu einem Integer umgewandelt werden. In der vorliegenden Implementation werden die Kommastellen nach der Multiplikation abgeschnitten und nicht gerundet. Bei einer Verdoppelung des Parallelisierungsgrades übt die maximale Differenz von 1 keinen starken Einfluss aus und der Code ist leichter zu lesen. Lohrmann et al. treffen selbst keine Aussage zu dieser Problematik.
+Um einen Flaschenhals aufzulösen, wird im vorgeschlagenen Algorithmus der Parallelisierungsgrad des Operators verdoppelt. Falls die Auslastung höher als eins ist, wird der Parallelisierungsgrad noch mit der momentanen Auslastung multipliziert. Da der Parallelisierungsgrad eine Ganzzahl sein muss, muss das Produkt entsprechend umgewandelt werden. In der vorliegenden Implementation werden die Kommastellen abgeschnitten und nicht gerundet. Bei einer Verdoppelung des Parallelisierungsgrades übt die maximale Differenz von eins keinen starken Einfluss aus und der Code ist leichter zu lesen. Lohrmann et al. treffen selbst keine Aussage zu dieser Problematik.
+Jedoch kann die vorgeschlagene Methode, um die Flaschenhälse in der Topologie aufzulösen, die zuvor beschriebenen Probleme nicht verhindern.
 
-Jedoch ist die Methode, Flaschenhälse in der Topologie aufzulösen, nicht ausreichend um die zuvor beschriebenen Probleme zu verhindern.
 Die Auflösung der Flaschenhälse sorgt nur dafür, dass die Bedingung \( 0 < \lambda S < 1 \) erfüllt ist.
-Um einen Nenner > 0 zu erhalten muss aber die Bedingung \(p^\ast > \lambda S p\) erfüllt sein.
-Nehmen wir den Grenzwert \(1\) für die Auslastung (\(\lambda S\) an.
+Um einen Nenner größer als null zu erhalten muss aber die Bedingung \(p^\ast > \lambda S p\) erfüllt sein.
+Nehmen wir den Grenzwert \(1\) für die Auslastung \(\lambda S\) an.
 Dies bedeutet immer wenn \(p \geq p^\ast\) zutrifft ist der Nenner null oder negativ.
 Lässt man die Auslastung gegen den Grenzwert \(0\) gehen, so ist der Nenner unter der Bedingung \(p \gg p^\ast\) null oder negativ.
 Wie im ersten Teil dieses Kapitels beschrieben, berechnet der Algorithmus zu Beginn die Wartezeit mit dem minimalen Parallelisierungsgrad.
-Wie in Kapitel ******** beschrieben ist es gewöhnlich, dass dieser eins beträgt.
+Dieser beträgt gewöhnlich eins.
 Wir nehmen an der Algorithmus startet mit dem potentiellen Parallelisierungsgrad \(p^\ast\ = 1\).
 Der momentan im System aktive Parallelisierungsgrad \(p\) bleibt für einen gesamten Durchlauf des Algorithmus konstant.
 Da \(p^\ast = 1\) ist es nicht unwahrscheinlich, dass \(p \gg p^\ast\) zutrifft und somit der Nenner \(\leq 0\) ist.
 Dies ist für die Anwendung aber nicht zulässig und stellt deshalb ein Fehler im von Lohrmann et al. vorgestellten Algorithmus dar.
-Die Berechnung des Algorithmus darf nicht in allen Fällen mit dem im Modell festegelegten minimalen Parallelisierungsgrad von eins beginnen.
-Stattdessen ist die Auswahl des minimalen Parallelisierungsgrades eines Operators wie folgt zu definieren: \(max(p_min, \lambda S p + 1\).
-Die Erhöhung um eins ist notwendig um zu Verhindern, dass der Nenner null wird.
+
+Der Algorithmus darf nicht in allen Fällen mit dem im Graphen-Modell festgelegten minimalen Parallelisierungsgrad beginnen.
+Stattdessen ist die Auswahl des minimalen Parallelisierungsgrades eines Operators wie folgt zu definieren: \(max(p_min, \lambda S p + 1)\).
+Die Erhöhung um eins ist notwendig um zu verhindern, dass der Nenner null wird.
 Diese Änderung wurde in der vorliegenden Implementation des Algorithmus umgesetzt.
 
 \subsection{Ausnahme bei Flaschenhals mit maximalem Parallelisierungsgrad}
-Wie zuvor beschrieben wird beim Auftreten einen Flaschenhalses der Parallelisierungsgrad des Operators verdoppelt. 
+Wie zuvor beschrieben wird der Parallelisierungsgrad des Operators verdoppelt, wenn ein Flaschenhals auftritt. 
 Dabei kann es vorkommen, dass der maximale Parallelisierungsgrad eines Operators überschritten wird. 
 Die Implementation des Algorithmus wirft in diesen Fall eine Ausnahme, welche besagt dass der Operator trotz maximalem Parallelisierungsgrad ein Flaschenhals ist.
 Es wird keine weitere Anpassung unternommen.
