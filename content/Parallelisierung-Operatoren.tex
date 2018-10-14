@@ -5,12 +5,14 @@ Es werden Konzepte, mit denen ein CEP-System den Durchsatz an Daten erhöhen kan
 Anschließend werden einige Algorithmen aus der Literatur untersucht, die die Elastizität eines CEP-Systems steuern können.
 Zwei der vorgestellten Algorithmen werden gewählt und im Verlauf dieser Arbeit implementiert und evaluiert.
 
-CEP-Systeme sind datenver
+CEP-Systeme ermöglichen es dem Anwender Datenströme zu verarbeiten.
+Der Unterschied zu reinen Datenstrom verarbeitenden Systemen liegt darin, dass die Operationen oft komplexer sind und einen Zustand besitzen  \cite{carbone_towards_2013}.
+Deshalb verwenden CEP-Systeme oft SQL-ähnliche Abfragesprachen, welche auf dem Datenstrom ausgeführt werden \cite{carbone_towards_2013}.
 Die Festlegung, wie der Datenstrom verarbeitet wird, ist durch eine sogenannte Topologie beschrieben.
 Die Topologie wird durch Operatoren, die eine Funktion auf den Daten durchführen, und deren Abfolge definiert.
 
 Das Ziel von CEP-Systemen ist die zuverlässige Verarbeitung von Daten in Realzeit.
-Laut Stonebraker et. al \cite{Laut Stonebraker et. al} ist eine der acht Anforderungen an Datenstromverarbeitung in Realzeit, dass das System skalierbar ist.
+Laut Stonebraker et. al \cite{stonebraker_8_2005} ist eine der acht Anforderungen an Datenstromverarbeitung in Realzeit, dass das System skalierbar ist.
 Naturgemäß unterliegen die zu bearbeitenden Datenströme Schwankungen.
 Um diese Schwankungen abzufangen, muss sich das CEP-System, durch das die Daten abgearbeitet werden, an den ankommenden Datenstrom anpassen.
 Ist die Kapazität des Systems zu klein, dann verfallen die Daten oder können nicht mehr unter Realzeit entsprechenden Bedingungen abgearbeitet werden.
@@ -28,7 +30,7 @@ Somit ist eine Anpassung des CEP-Systems zumindest in größeren Zeitabständen 
 Ein CEP-System, das für eine Anpassung an einen eintreffenden Datenstrom abgeschaltet werden muss, kann währenddesssen keine Daten mehr entgegennehmen.
 Daher verfallen diese oder müssen durch einen Zwischenspeicher aufgefangen werden.
 Beide Methoden verfehlen das Ziel einer konstanten Verarbeitung in Realzeit.
-Deshalb muss ein CEP-System, das Daten zuverlässig in Realzeit verarbeiten soll, elastisch sein.*************zitat
+Deshalb muss ein CEP-System, das Daten zuverlässig in Realzeit verarbeiten soll, elastisch sein.
 
 \section{Parallelisierung von Operatoren}
 
@@ -82,7 +84,8 @@ Sie bietet das größte Potential, da sie weniger limitiert ist als die anderen 
 Durch die Parallelisierung darf das Ergebnis nicht anders ausfallen, als wenn es durch eine sequentielle Abfolge der Operators berechnet worden wäre.
 Dieses Eigenschaft wird auch als ''safety'' des Operators bezeichnet \cite{gedik_elastic_2014}.
 Deshalb ist essentiell die Aufteilung des Datenstroms und des Zustandes des Operators zu betrachten.
-In der Forschung gibt es viele Arbeiten, die sich mit dieser Problematik auseinandersetzen. ************************Forschungen nennen*******************
+In der Forschung gibt es viele Arbeiten, die sich mit dieser Problematik auseinandersetzen.
+Einige dieser Arbeiten werden in Kapitel zwei genannt.
 Der Zentrale Themenpunkt der vorliegende Arbeit beschäftigt sich mit der Wahl des Parallelisierungsgrades eines Operators.
 
 \section{Bestimmung des Parallelisierungsgrades}
@@ -95,7 +98,12 @@ Ist diese Elastizität für die Ressourcen nicht vorhanden, ist die Optimierung 
 Da bei der Parallelisierung des Datenstroms der Operator als Blackbox angenommen wird, können Algorithmen aus dem Bereich der reinen Datenstromverarbeitung auf ein CEP-System angewendet werden.
 
 Einige der Algorithmen verwenden Ansätze, die rein auf gemessene Überschreitung eines Grenzwertes reagieren.
-So implementieren Heinze et al. \cite{heinze_auto-scaling_2014} zwei verschiedene Grenzwert-basierte Algorithmen.
+Ein sehr simpler Algorithmus wurde von Vogel et al. vorgestellt \cite{vogel_autonomic_nodate}.
+Der Algorithmus prüft ob der Grenzwert für die Latenz eines Operators überschritten wird.
+Ist dies der Fall wird der Parallelisierungsgrad um eine benutzerdefinierte Schrittweite erhöht.
+Ist die gemessene Latenz niederer als ein Minimalwert, wird in der gleichen Schrittweite zurück skaliert.
+
+Heinze et al. \cite{heinze_auto-scaling_2014} implementieren zwei verschiedene Grenzwert-basierte Algorithmen.
 Der lokale Grenzwert-Ansatz skaliert auf Basis der Grenzwerte für Unter-Auslastung beziehungsweise Überlastung eines Rechners. 
 Dabei gibt es nach einer Skalierung eine Zeitperiode, in welcher der Rechner nicht mehr überprüft wird.
 Um häufiges Skalieren zu verhindern wird erst skaliert, wenn der Grenzwert mehrfach überschritten wurde.
@@ -130,15 +138,16 @@ Außerdem verwendet der Algorithmus zusätzlich eine Vorhersage der Ausgangstupe
 Der Operator wird für den höheren Wert aus beiden Vorhersagen skaliert.
 
 Einen anderen Algorithmus der auf Vorhersage basiert schlagen Zacheilas et al. vor \cite{zacheilas_elastic_2015}.
-Dabei arbeiten Sie mit Gauss-Prozessen.
+Die Vorhersage wird dabei durch eine Regression mittels Gauss-Prozessen berechnet.
 Die Vorhersage bestimmt die Anzahl eingehender und ausgehender Tupel eines Operators zu zukünftigen Zeitpunkten.
 Draus bestimmen die Autoren die Anzahl Tupel, die vom Operator nicht verarbeitet werden können.
 Die nicht verarbeiteten Tupel sind eine Variable für die Kostenfunktion aus der ein Graph mit möglichen zukünftigen Zustandsübergängen aufgebaut wird.
 Der Operator wird anhand der Zustandsübergänge des kürzesten Pfades durch den Graphen skaliert.
+Außerdem bezieht sich die Arbeit als eine der wenigen direkt auf CEP-Systeme.
 
 Eine weitere Gruppe von Algorithmen benutzt das Modell der Warteschlangen-Theorie um das Verhalten von Tupeln vor einem Operator zu beschreiben.
 In der Arbeit von Mayer et al. \cite{mayer_predictable_2015} schlagen die Autoren einen Ansatz mit Warteschlangen-Theorie vor.
-Außerdem bezieht sich die Arbeit als eine der wenigen direkt auf CEP-Systeme.
+Die Autoren beziehen sich in Ihrer Arbeit ebenfalls auf CEP-Systeme.
 Die Autoren verfolgen das Ziel, die Warteschlange von Tupeln vor einen Operator unter einem benutzerdefinierten Grenzwert zu halten.
 Um die Länge der Warteschlange zu bestimmen wird ein mathematisches Modell aus der Warteschlangetheorie verwendet.
 Dazu werden die benötigten Werte für das Modell gemessen und mithilfe der Methoden der Zeitreihenanalyse vorhergesagt.

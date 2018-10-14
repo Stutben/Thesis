@@ -1,1 +1,67 @@
-\chapter{Bestehende Arbeiten}
+\chapter{Verwandte Arbeiten}
+Im folgenden Kapitel sollen Arbeiten erwähnt werden, die verwandte Themenbereiche behandeln.
+Viele Arbeiten im Bereich der Datenstromverarbeitung beziehen sich nicht explizit auf CEP, treffen aber meist für diese Art der Verarbeitung ebenfalls zu.
+
+Assuncao et al. stellen in Iherer Arbeit eine Übersicht über den aktuellen Stand von Datenstromverarbeitung auf \cite{de_assuncao_distributed_2017}.
+Sie definieren eine Klassifikation von Systemen zur Datenstromverarbeitung auf und stellen sie einzeln vor.
+Außerdem beschreiben Sie die verschiedenen Ansätze, die für Elastizität eines Systems zur Datenstromverarbeitung vorgeschlagen wurden.
+Unter anderem beschreiben Sie auch die Algorithmen, die für die Parallelisierung eingesetzt werden.
+Sattler et al. \cite{sattler_towards_2013} diskutieren in ihrer Arbeit typische Muster, die bei elastischem Verarbeiten von Datenströmen auftreten.
+
+Für die Verarbeitung von Datenströmen wurden bereits einige Systeme vorgeschlagen und implementiert.
+Die Autoren Lohrmann et al. \cite{lohrmann_nephele_2014} stellen mit Nephele ein System vor, das die Größe der Ausgangszwischenspeicher dynamisch zur Laufzeit anpassen kann, um so Einfluss auf Latenz und Durchsatz zu nehmen.
+Akidau et al. \cite{akidau_millwheel:_2013} stellen in ihrer Arbeit MillWheel vor.
+Das von Google stammende System wurde speziell für Skalierbarkeit und Fehlertoleranz implementiert.
+Ein anderes von Twitter entwickeltes System wird von den Autoren Kulkarni et al. beschrieben \cite{kulkarni_twitter_2015}.
+Heron wurde auf der Basis von Apache Strom implementiert, da dieses die von Twitter gestellten Anforderungen nicht mehr erfüllen konnte.
+
+Es gibt jedoch auch System, die speziell für CEP ausgelegt sind.
+In \cite{wu_high-performance_2006} stellen Wu et al. das CEP-System vor SASE vor, das speziell für die Abfrage von RFID-Events implementiert wurde.
+Für die Abfrage der Events wurde von den Autoren eine eigene Sprache entwickelt.
+Ein weiteres CEP-System wurde durch Cugola et al. vorgestellt \cite{cugola_complex_2012}.
+Das System T-Rex verwendet die von den selben Autoren erstellte Sprache TESLA \cite{cugola_tesla:_2010} zur Definition der Abfragen. 
+Eines der bekannteren Frameworks für CEP ist Esper \cite{noauthor_home_nodate}, welches auch als kommerzielle Version für Hochverfügbarkeit angeboten wird.
+
+Außerdem beschäftigen sich viele Arbeiten mit der Elastizität der Systeme.
+Die Arbeiten auf diesem Feld teilen sich in verschiedene Teilgebiete auf.
+Zum einen gibt es Arbeiten, die den Parallelisierungsgrad eines Operators mithilfe von Algorithmen bestimmen. Diese werden in Kapitel 3 dieser Arbeit genauer beschrieben.
+
+Um die Parallelisierung möglich zu machen, ist es notwendig dass ein Mechanismus existiert, der Datenströme aufteilt.
+Zacheilas et al. beschreiben einen Ansatz, der parallelisierte Datenströme anhand ihrer unterschiedlichen Last optimal auf Rechner eines Clusters verteilt \cite{zacheilas_dynamic_2016}.
+In \cite{balkesen_adaptive_2013} beschreiben Balkesen et al. eine Vorgehensweise, die mehrere eingehende Datenströme aufteilen.
+In ihrem Paper schlagen die Autoren eine spezielle Vorgehensweise für Operatoren vor, die Fenster verarbeiten.
+Sie ermöglichen es damit selbst verschiebende Fenster an verschiedenen Instanzen des Operators weiterzugeben.
+Mayer et al. \cite{mayer_predictable_2015} beschreiben ebenfalls einen Ansatz für um einen Datenstrom aufzuteilen.
+Entgegen der oft verwendeten Verfahren, die auf einem Schlüssel im Tupel basieren, definieren die Autoren Partitionen im Splitter.
+Eine Partition wird durch Prädikate definiert, welche eine Partition starten und wieder schließen.
+Jedes Tupel wird auf diese Prädikate geprüft.
+Alle Tupel die zwischen einem Start und einem Ende der Partition den Operator erreichen gehören zur Partition.
+Partitionen sind den Instanzen des Operators zugewiesen.
+
+Ein weiteres Feld der Forschung ist die Migration des Zustandes eines Operators.
+Wenn ein Operator eine neue Instanz erhält muss diese den bisherigen Zustand erhalten.
+Der Zustand muss dabei auch Rechner-übergreifend übergeben werden.
+Shah et al. lösen das Problem in ihrem Paper mit einer hohen Anzahl kleiner Partitionen \cite{shah_flux:_2003}.
+Diese teilen von Beginn den Zustand des Operators auf und können bei Bedarf verschoben werden.
+Die Autoren gehen davon aus, dass eine Instanz des Operators zu einem bestimmten Zeitpunkt immer nur eine Untermenge der Partitionen exklusiv nutzt.
+Der zu dieser Partition korrespondierende Teil des Datenstroms muss über die Instanz , die die Partition nutzt, abgearbeitet werden.
+Castro Fernandez et al. \cite{castro_fernandez_integrating_2013} benutzen einen ähnlichen Ansatz um den Zustand aufzuteilen.
+Allerdings werden die Partitionen bei jedem Skaliervorgang neu berechnet.
+Der Schlüsselraum wird neu unter den Instanzen aufgeteilt und die Partitionen entsprechend der Verteilung der Schlüssel neu berechnet.
+Matteis et al. \cite{de_matteis_keep_2016} berechnen die Partitionen ebenfalls bei jedem Skaliervorgang neu.
+Jedoch verteilen Sie bei ihrem Ansatz die Schlüssel nicht komplett neu.
+Nur die Partitionen, deren Schlüssel einer neuen Instanz zugewiesen wurde trennen den spezifizierten Bereich ab.
+Alle anderen Instanzen, deren Partitionen nicht betroffen sind, können so weiterhin die eintreffenden Tupel verarbeiten.
+
+Zuletzt müssen Parallelisierte Operatoren noch auf die Rechner eines Clusters verteilt werden.
+Dabei sollten die Lasten möglichst gleichmäßig aufgeteilt sein.
+Zusätzlich gilt es zu beachten, dass Operatoren, die auf dem selben Rechner sind, mit geringerem Aufwand miteinander kommunizieren können.
+Heinze et al. betrachten das Problem als inkrementelles Behälterproblem \cite{heinze_latency-aware_2014}.
+Für die Lösung des Problems ordnen Sie alle neu zu verteilenden Instanzen absteigend nach CPU-Anforderungen und fügen Sie dem ersten Rechner zu, der genug CPU frei hat.
+Zusätzlich werden Rechner bevorzugt auf dem benachbarte Operatoren liegen.
+Einen anderen Ansatz schlagen Ying Xing et al vor \cite{ying_xing_dynamic_2005}.
+Sie berechnen eine Punktzahl für die Kombination zwischen jeder Instanz und jedem Rechner.
+Anschließend werden die Instanzen einzeln dem Rechner zugewiesen, der am meisten Kapazität zur Verfügung hat.
+Es wird immer die Instanz zugewiesen, die die höchste Punktzahl in Kombination mit dem Rechner ausweist.
+
+

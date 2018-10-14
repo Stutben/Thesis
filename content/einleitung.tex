@@ -1,17 +1,23 @@
 % !TeX spellcheck = de_DE
 
 \chapter{Einleitung}
-In diesem Kapitel steht die Einleitung zu dieser Arbeit.
-Sie soll nur als Beispiel dienen und hat nichts mit dem Buch \cite{WSPA} zu tun.
-Nun viel Erfolg bei der Arbeit!
 
-Bei \LaTeX\ werden Absätze durch freie Zeilen angegeben.
-Da die Arbeit über ein Versionskontrollsystem versioniert wird, ist es sinnvoll, pro \emph{Satz} eine neue Zeile im \texttt{.tex}-Dokument anzufangen.
-So kann einfacher ein Vergleich von Versionsständen vorgenommen werden.
+Immer mehr Geräte werden heute mit dem Internet vernetzt um Informationen aus deren Verwendung zu erhalten.
+Als Folge steigt die Zahl der dadurch erzeugten Daten stark an.
+Die große Anzahl der erzeugter Daten formiert sich dabei an den Endpunkten, zu denen sie geschickt werden, zu einem nicht abreissendem Zustrom von Daten.
+Dieser Strom an Daten 
 
-\section*{Gliederung}
-Die Arbeit ist in folgender Weise gegliedert:
-\begin{description}
-\item[Kapitel~\ref{chap:k2} -- \nameref{chap:k2}:] Hier werden werden die Grundlagen dieser Arbeit beschrieben.
-\item[Kapitel~\ref{chap:zusfas} -- \nameref{chap:zusfas}] fasst die Ergebnisse der Arbeit zusammen und stellt Anknüpfungspunkte vor.
-\end{description}
+Die vorliegende Arbeit beschreibt zuerst die Elastizität von CEP-Systemen und deren Notwendigkeit.
+Anschließend werden verschiedene Algorithmen aus der Forschung vorgestellt, die für ein automatisiertes Skalieren des CEP-System entwickelt wurden.
+Der Fokus in dieser Arbeit liegt dabei auf der Bestimmung des Parallelisierungsgrades der Operatoren in einer CEP-Topologie.
+Zwei dieser Algorithmen werden gewählt und im Rahmen der Arbeit implementiert und evaluiert.
+
+Zu diesem Zweck wird auf Basis eines bestehenden Adapters für Heron ein neues Framework aufgebaut.
+Der Adapter Kapselt die Schnittstelle zu Heron 
+
+Das in dieser Arbeit entwickelte Framework wurde erstellt, um verschiedene Algorithmen zur Skalierung von CEP-Systemen testen zu können.
+Dabei sollen die Algorithmen komplett unabhängig vom zu steuernden CEP-System implementiert werden, um deren Wiederverwendbarkeit zu garantieren.
+Zu diesem Zweck erzeugt das Framework ein eigenes Graphen-Modell der Topologie aus dem CEP-System.
+Die implementierten Algorithmen arbeiten ausschließlich auf dem erzeugten Modell, und sind so unabhängig vom CEP-System.
+Die Verbindung zum CEP-System aus dem Framework wird durch einen Adapter ermöglicht.
+Dieser veröffentlicht eine REST

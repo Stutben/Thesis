@@ -24,6 +24,27 @@
 	file = {ACM Full Text PDF:C\:\\Users\\Beni\\Zotero\\storage\\N8QSQ8RR\\Stonebraker et al. - 2005 - The 8 Requirements of Real-time Stream Processing.pdf:application/pdf}
 }
 
+@article{vogel_autonomic_nodate,
+	title = {Autonomic and {Latency}-{Aware} {Degree} of {Parallelism} {Management} in {SPar}},
+	abstract = {Stream processing applications became a representative workload in current computing systems. A signiﬁcant part of these applications demands parallelism to increase performance. However, programmers are often facing a trade-oﬀ between coding productivity and performance when introducing parallelism. SPar was created for balancing this trade-oﬀ to the application programmers by using the C++11 attributes’ annotation mechanism. In SPar and other programming frameworks for stream processing applications, the manual deﬁnition of the number of replicas to be used for the stream operators is a challenge. In addition to that, low latency is required by several stream processing applications. We noted that explicit latency requirements are poorly considered on the state-of-the-art parallel programming frameworks. Since there is a direct relationship between the number of replicas and the latency of the application, in this work we propose an autonomic and adaptive strategy to choose the proper number of replicas in SPar to address latency constraints. We experimentally evaluated our implemented strategy and demonstrated its eﬀectiveness on a real-world application, demonstrating that our adaptive strategy can provide higher abstraction levels while automatically managing the latency.},
+	language = {en},
+	author = {Vogel, Adriano and Griebler, Dalvan and Sensi, Daniele De and Danelutto, Marco and Fernandes, Luiz Gustavo},
+	pages = {12},
+	file = {Vogel et al. - Autonomic and Latency-Aware Degree of Parallelism .pdf:C\:\\Users\\Beni\\Zotero\\storage\\ELJP3QHK\\Vogel et al. - Autonomic and Latency-Aware Degree of Parallelism .pdf:application/pdf}
+}
+
+@inproceedings{zacheilas_dynamic_2016,
+	address = {New York, NY},
+	title = {Dynamic {Load} {Balancing} {Techniques} for {Distributed} {Complex} {Event} {Processing} {Systems}},
+	isbn = {978-3-319-39576-0},
+	language = {en},
+	booktitle = {Distributed applications and interoperable systems},
+	publisher = {Springer Berlin Heidelberg},
+	author = {Zacheilas, Nikos and Zygouras, Nikolas and Panagiotou, Nikolaos and {Kalogeraki, Vana} and {Gunopulos, Dimitrios}},
+	year = {2016},
+	file = {2016 - Distributed applications and interoperable systems.pdf:C\:\\Users\\Beni\\Zotero\\storage\\ER79EW5C\\2016 - Distributed applications and interoperable systems.pdf:application/pdf}
+}
+
 @article{herbst_elasticity_nodate,
 	title = {Elasticity in {Cloud} {Computing}: {What} {It} {Is}, and {What} {It} {Is} {Not}},
 	abstract = {Originating from the ﬁeld of physics and economics, the term elasticity is nowadays heavily used in the context of cloud computing. In this context, elasticity is commonly understood as the ability of a system to automatically provision and deprovision computing resources on demand as workloads change. However, elasticity still lacks a precise deﬁnition as well as representative metrics coupled with a benchmarking methodology to enable comparability of systems. Existing deﬁnitions of elasticity are largely inconsistent and unspeciﬁc, which leads to confusion in the use of the term and its differentiation from related terms such as scalability and efﬁciency; the proposed measurement methodologies do not provide means to quantify elasticity without mixing it with efﬁciency or scalability aspects. In this short paper, we propose a precise deﬁnition of elasticity and analyze its core properties and requirements explicitly distinguishing from related terms such as scalability and efﬁciency. Furthermore, we present a set of appropriate elasticity metrics and sketch a new elasticity tailored benchmarking methodology addressing the special requirements on workload design and calibration.},
@@ -64,6 +85,56 @@
 	keywords = {parallel processing, Internet of Things, quality of service, Adaptation models, buffering limit, Complex event processing (CEP), data parallelization, data streams, Delays, dynamic workloads, Event detection, event pattern detection, Intelligent sensors, IoT, IT systems, Monitoring, parallel complex event processing, pattern-sensitive partitioning model, predictable low-latency event detection, self-adaptation, stream processing},
 	pages = {274--286},
 	file = {IEEE Xplore Abstract Record:C\:\\Users\\Beni\\Zotero\\storage\\H2RRN52Y\\7024105.html:text/html;IEEE Xplore Full Text PDF:C\:\\Users\\Beni\\Zotero\\storage\\FDJJJ7HJ\\Mayer et al. - 2015 - Predictable Low-Latency Event Detection With Paral.pdf:application/pdf}
+}
+
+
+@inproceedings{shah_flux:_2003,
+	title = {Flux: an adaptive partitioning operator for continuous query systems},
+	shorttitle = {Flux},
+	doi = {10.1109/ICDE.2003.1260779},
+	abstract = {The long-running nature of continuous queries poses new scalability challenges for dataflow processing. CQ systems execute pipelined dataflows that may be shared across multiple queries. The scalability of these dataflows is limited by their constituent, stateful operators - e.g. windowed joins or grouping operators. To scale such operators, a natural solution is to partition them across a shared-nothing platform. But in the CQ context, traditional, static techniques for partitioned parallelism can exhibit detrimental imbalances as workload and runtime conditions evolve. Long-running CQ dataflows must continue to function robustly in the face of these imbalances. To address this challenge, we introduce a dataflow operator called flux that encapsulates adaptive state partitioning and dataflow routing. Flux is placed between producer-consumer stages in a dataflow pipeline to repartition stateful operators while the pipeline is still executing. We present the flux architecture, along with repartitioning policies that can be used for CQ operators under shifting processing and memory loads. We show that the flux mechanism and these policies can provide several factors improvement in throughput and orders of magnitude improvement in average latency over the static case.},
+	booktitle = {Proceedings 19th {International} {Conference} on {Data} {Engineering} ({Cat}. {No}.03CH37405)},
+	author = {Shah, M. A. and Hellerstein, J. M. and Chandrasekaran, Sirish and Franklin, M. J.},
+	month = mar,
+	year = {2003},
+	keywords = {Basic, tbr, Theorie},
+	pages = {25--36},
+	file = {Shah et al. - 2003 - Flux an adaptive partitioning operator for contin.pdf:C\:\\Users\\Beni\\Zotero\\storage\\ZLNBFQW4\\Shah et al. - 2003 - Flux an adaptive partitioning operator for contin.pdf:application/pdf}
+}
+
+@inproceedings{de_matteis_keep_2016,
+	title = {Keep calm and react with foresight: strategies for low-latency and energy-efficient elastic data stream processing},
+	isbn = {978-1-4503-4092-2},
+	shorttitle = {Keep calm and react with foresight},
+	url = {http://dl.acm.org/citation.cfm?doid=2851141.2851148},
+	doi = {10.1145/2851141.2851148},
+	abstract = {This paper addresses the problem of designing scaling strategies for elastic data stream processing. Elasticity allows applications to rapidly change their conﬁguration on-the-ﬂy (e.g., the amount of used resources) in response to dynamic workload ﬂuctuations. In this work we face this problem by adopting the Model Predictive Control technique, a control-theoretic method aimed at ﬁnding the optimal application conﬁguration along a limited prediction horizon in the future by solving an online optimization problem. Our control strategies are designed to address latency constraints, using Queueing Theory models, and energy consumption by changing the number of used cores and the CPU frequency through the Dynamic Voltage and Frequency Scaling (DVFS) support available in the modern multicore CPUs. The proactive capabilities, in addition to the latency- and energy-awareness, represent the novel features of our approach. To validate our methodology, we develop a thorough set of experiments on a high-frequency trading application. The results demonstrate the high-degree of ﬂexibility and conﬁgurability of our approach, and show the effectiveness of our elastic scaling strategies compared with existing state-of-the-art techniques used in similar scenarios.},
+	language = {en},
+	urldate = {2018-06-06},
+	publisher = {ACM Press},
+	author = {De Matteis, Tiziano and Mencagli, Gabriele},
+	year = {2016},
+	keywords = {Fokus: Operator, nicht so gut, Queueing, Regelungstechnik, Skalierkosten, Survey Henriette, Zeitreihen Vorhersage},
+	pages = {1--12},
+	file = {De Matteis und Mencagli - 2016 - Keep calm and react with foresight strategies for.pdf:C\:\\Users\\Beni\\Zotero\\storage\\356BN377\\De Matteis und Mencagli - 2016 - Keep calm and react with foresight strategies for.pdf:application/pdf;Summary - Keep calm and react.pdf:C\:\\Users\\Beni\\Zotero\\storage\\DKQZTCKX\\Summary - Keep calm and react.pdf:application/pdf}
+}
+
+@inproceedings{castro_fernandez_integrating_2013,
+	address = {New York, NY, USA},
+	series = {{SIGMOD} '13},
+	title = {Integrating {Scale} out and {Fault} {Tolerance} in {Stream} {Processing} {Using} {Operator} {State} {Management}},
+	isbn = {978-1-4503-2037-5},
+	url = {http://doi.acm.org/10.1145/2463676.2465282},
+	doi = {10.1145/2463676.2465282},
+	abstract = {As users of "big data" applications expect fresh results, we witness a new breed of stream processing systems (SPS) that are designed to scale to large numbers of cloud-hosted machines. Such systems face new challenges: (i) to benefit from the "pay-as-you-go" model of cloud computing, they must scale out on demand, acquiring additional virtual machines (VMs) and parallelising operators when the workload increases; (ii) failures are common with deployments on hundreds of VMs-systems must be fault-tolerant with fast recovery times, yet low per-machine overheads. An open question is how to achieve these two goals when stream queries include stateful operators, which must be scaled out and recovered without affecting query results. Our key idea is to expose internal operator state explicitly to the SPS through a set of state management primitives. Based on them, we describe an integrated approach for dynamic scale out and recovery of stateful operators. Externalised operator state is checkpointed periodically by the SPS and backed up to upstream VMs. The SPS identifies individual operator bottlenecks and automatically scales them out by allocating new VMs and partitioning the checkpointed state. At any point, failed operators are recovered by restoring checkpointed state on a new VM and replaying unprocessed tuples. We evaluate this approach with the Linear Road Benchmark on the Amazon EC2 cloud platform and show that it can scale automatically to a load factor of L=350 with 50 VMs, while recovering quickly from failures.},
+	urldate = {2018-06-06},
+	booktitle = {Proceedings of the 2013 {ACM} {SIGMOD} {International} {Conference} on {Management} of {Data}},
+	publisher = {ACM},
+	author = {Castro Fernandez, Raul and Migliavacca, Matteo and Kalyvianaki, Evangelia and Pietzuch, Peter},
+	year = {2013},
+	keywords = {fault tolerance, scalability, stateful stream processing},
+	pages = {725--736},
+	file = {ACM Full Text PDF:C\:\\Users\\Beni\\Zotero\\storage\\CFGZRL3N\\Castro Fernandez et al. - 2013 - Integrating Scale out and Fault Tolerance in Strea.pdf:application/pdf}
 }
 
 @inproceedings{heinze_online_2015,
@@ -198,6 +269,58 @@
 	file = {Zacheilas et al. - 2015 - Elastic complex event processing exploiting predic.pdf:C\:\\Users\\Beni\\Zotero\\storage\\M5Q6J3T8\\Zacheilas et al. - 2015 - Elastic complex event processing exploiting predic.pdf:application/pdf}
 }
 
+@inproceedings{carbone_towards_2013,
+	address = {Prague, Czech Republic},
+	title = {Towards {Highly} {Available} {Complex} {Event} {Processing} {Deployments} in the {Cloud}},
+	isbn = {978-1-4799-2010-5},
+	url = {http://ieeexplore.ieee.org/document/6658116/},
+	doi = {10.1109/NGMAST.2013.35},
+	abstract = {Recent advances in distributed computing have made it possible to achieve high availability on traditional systems and thus serve them as reliable services. For several ofﬂine computational applications, such as ﬁne grained batch processing, their parallel nature in addition to weak consistency requirements allowed a more trivial transition. On the other hand, on-line processing systems such as Complex Event Processing (CEP) still maintain a monolithic architecture, being able to offer high expressiveness and vertical scalability at the expense of low distribution. Despite attempts to design dedicated distributed CEP systems there is potential for existing systems to beneﬁt from a sustainable cloud deployment. In this work we address the main challenges of providing such a CEP service with a focus on reliability, since it is the most crucial aspect of that transition. Our approach targets low average detection latency and sustainability by leveraging event delegation mechanisms present on existing stream execution platforms. It also introduces redundancy and transactional logging to provide improved fault tolerance and partial recovery. Our performance analysis illustrates the beneﬁts of our approach and shows acceptable performance costs for on-line CEP exhibited by the fault tolerance mechanisms we introduced.},
+	language = {en},
+	urldate = {2018-10-12},
+	booktitle = {2013 {Seventh} {International} {Conference} on {Next} {Generation} {Mobile} {Apps}, {Services} and {Technologies}},
+	publisher = {IEEE},
+	author = {Carbone, Paris and Vandikas, Konstantinos and Zaloshnja, Farjola},
+	month = sep,
+	year = {2013},
+	pages = {153--158},
+	file = {Carbone et al. - 2013 - Towards Highly Available Complex Event Processing .pdf:C\:\\Users\\Beni\\Zotero\\storage\\I6K7M9I2\\Carbone et al. - 2013 - Towards Highly Available Complex Event Processing .pdf:application/pdf}
+}
+
+@article{akidau_millwheel:_2013,
+	title = {{MillWheel}: {Fault}-tolerant {Stream} {Processing} at {Internet} {Scale}},
+	volume = {6},
+	issn = {2150-8097},
+	shorttitle = {{MillWheel}},
+	url = {http://dx.doi.org/10.14778/2536222.2536229},
+	doi = {10.14778/2536222.2536229},
+	abstract = {MillWheel is a framework for building low-latency data-processing applications that is widely used at Google. Users specify a directed computation graph and application code for individual nodes, and the system manages persistent state and the continuous flow of records, all within the envelope of the framework's fault-tolerance guarantees. This paper describes MillWheel's programming model as well as its implementation. The case study of a continuous anomaly detector in use at Google serves to motivate how many of MillWheel's features are used. MillWheel's programming model provides a notion of logical time, making it simple to write time-based aggregations. MillWheel was designed from the outset with fault tolerance and scalability in mind. In practice, we find that MillWheel's unique combination of scalability, fault tolerance, and a versatile programming model lends itself to a wide variety of problems at Google.},
+	number = {11},
+	urldate = {2018-06-06},
+	journal = {Proc. VLDB Endow.},
+	author = {Akidau, Tyler and Balikov, Alex and Bekiroğlu, Kaya and Chernyak, Slava and Haberman, Josh and Lax, Reuven and McVeety, Sam and Mills, Daniel and Nordstrom, Paul and Whittle, Sam},
+	month = aug,
+	year = {2013},
+	pages = {1033--1044},
+	file = {ACM Full Text PDF:C\:\\Users\\Beni\\Zotero\\storage\\WZYGG3VM\\Akidau et al. - 2013 - MillWheel Fault-tolerant Stream Processing at Int.pdf:application/pdf}
+}
+
+@inproceedings{wu_high-performance_2006,
+	title = {High-performance complex event processing over streams},
+	isbn = {978-1-59593-434-5},
+	url = {http://portal.acm.org/citation.cfm?doid=1142473.1142520},
+	doi = {10.1145/1142473.1142520},
+	abstract = {In this paper, we present the design, implementation, and evaluation of a system that executes complex event queries over real-time streams of RFID readings encoded as events. These complex event queries filter and correlate events to match specific patterns, and transform the relevant events into new composite events for the use of external monitoring applications. Stream-based execution of these queries enables time-critical actions to be taken in environments such as supply chain management, surveillance and facility management, healthcare, etc. We first propose a complex event language that significantly extends existing event languages to meet the needs of a range of RFID-enabled monitoring applications. We then describe a query plan-based approach to efficiently implementing this language. Our approach uses native operators to efficiently handle query-defined sequences, which are a key component of complex event processing, and pipelines such sequences to subsequent operators that are built by leveraging relational techniques. We also develop a large suite of optimization techniques to address challenges such as large sliding windows and intermediate result sizes. We demonstrate the effectiveness of our approach through a detailed performance analysis of our prototype implementation as well as through a comparison to a state-of-the-art stream processor.},
+	language = {en},
+	urldate = {2018-04-27},
+	publisher = {ACM Press},
+	author = {Wu, Eugene and Diao, Yanlei and Rizvi, Shariq},
+	year = {2006},
+	keywords = {tbr, Implementation},
+	pages = {407},
+	file = {Wu et al. - 2006 - High-performance complex event processing over str.pdf:C\:\\Users\\Beni\\Zotero\\storage\\7CSHDRE4\\Wu et al. - 2006 - High-performance complex event processing over str.pdf:application/pdf}
+}
+
 @article{de_assuncao_distributed_2017,
 	title = {Distributed {Data} {Stream} {Processing} and {Edge} {Computing}: {A} {Survey} on {Resource} {Elasticity} and {Future} {Directions}},
 	shorttitle = {Distributed {Data} {Stream} {Processing} and {Edge} {Computing}},
@@ -294,6 +417,114 @@ an interesting/influential/important paper from the world of CS every weekday mo
 	month = nov,
 	year = {2017},
 	file = {Snapshot:C\:\\Users\\Beni\\Zotero\\storage\\GWJ5H9TC\\95878.html:text/html}
+}
+
+@inproceedings{balkesen_adaptive_2013,
+	address = {New York, NY, USA},
+	series = {{DEBS} '13},
+	title = {Adaptive {Input} {Admission} and {Management} for {Parallel} {Stream} {Processing}},
+	isbn = {978-1-4503-1758-0},
+	url = {http://doi.acm.org/10.1145/2488222.2488258},
+	doi = {10.1145/2488222.2488258},
+	abstract = {In this paper, we propose a framework for adaptive admission control and management of a large number of dynamic input streams in parallel stream processing engines. The framework takes as input any available information about input stream behaviors and the requirements of the query processing layer, and adaptively decides how to adjust the entry points of streams to the system. As the optimization decisions propagate early from input management layer to the query processing layer, the size of the cluster is minimized, the load balance is maintained, and latency bounds of queries are met in a more effective and timely manner. Declarative integration of external meta-data about data sources makes the system more robust and resource-efficient. Additionally, exploiting knowledge about queries moves data partitioning to the input management layer, where better load balance for query processing can be achieved. We implemented these techniques as a part of the Borealis stream processing system and conducted experiments showing the performance benefits of our framework.},
+	urldate = {2018-06-06},
+	booktitle = {Proceedings of the 7th {ACM} {International} {Conference} on {Distributed} {Event}-based {Systems}},
+	publisher = {ACM},
+	author = {Balkesen, Cagri and Tatbul, Nesime and Özsu, M. Tamer},
+	year = {2013},
+	keywords = {data streams, adaptive admission control, parallelism},
+	pages = {15--26},
+	file = {ACM Full Text PDF:C\:\\Users\\Beni\\Zotero\\storage\\LUUM4GPA\\Balkesen et al. - 2013 - Adaptive Input Admission and Management for Parall.pdf:application/pdf}
+}
+
+@inproceedings{ying_xing_dynamic_2005,
+	address = {Tokyo, Japan},
+	title = {Dynamic {Load} {Distribution} in the {Borealis} {Stream} {Processor}},
+	isbn = {978-0-7695-2285-2},
+	url = {http://ieeexplore.ieee.org/document/1410193/},
+	doi = {10.1109/ICDE.2005.53},
+	abstract = {Distributed and parallel computing environments are becoming cheap and commonplace. The availability of large numbers of CPU’s makes it possible to process more data at higher speeds. Stream-processing systems are also becoming more important, as broad classes of applications require results in real-time.},
+	language = {en},
+	urldate = {2018-10-13},
+	booktitle = {21st {International} {Conference} on {Data} {Engineering} ({ICDE}'05)},
+	publisher = {IEEE},
+	author = {{Ying Xing} and Zdonik, S. and {Jeong-Hyon Hwang}},
+	year = {2005},
+	pages = {791--802},
+	file = {Ying Xing et al. - 2005 - Dynamic Load Distribution in the Borealis Stream P.pdf:C\:\\Users\\Beni\\Zotero\\storage\\ZPVISM3U\\Ying Xing et al. - 2005 - Dynamic Load Distribution in the Borealis Stream P.pdf:application/pdf}
+}
+
+@inproceedings{heinze_latency-aware_2014,
+	title = {Latency-aware elastic scaling for distributed data stream processing systems},
+	isbn = {978-1-4503-2737-4},
+	url = {http://dl.acm.org/citation.cfm?doid=2611286.2611294},
+	doi = {10.1145/2611286.2611294},
+	abstract = {Elastic scaling allows a data stream processing system to react to a dynamically changing query or event workload by automatically scaling in or out. Thereby, both unpredictable load peaks as well as underload situations can be handled. However, each scaling decision comes with a latency penalty due to the required operator movements. Therefore, in practice an elastic system might be able to improve the system utilization, however it is not able to provide latency guarantees deﬁned by a service level agreement (SLA).},
+	language = {en},
+	urldate = {2018-04-27},
+	publisher = {ACM Press},
+	author = {Heinze, Thomas and Jerzak, Zbigniew and Hackenbroich, Gregor and Fetzer, Christof},
+	year = {2014},
+	keywords = {lit\_done, Theorie, Placement, vertical},
+	pages = {13--22},
+	file = {Heinze et al. - 2014 - Latency-aware elastic scaling for distributed data.pdf:C\:\\Users\\Beni\\Zotero\\storage\\YMGVFT9Y\\Heinze et al. - 2014 - Latency-aware elastic scaling for distributed data.pdf:application/pdf}
+}
+
+@article{sattler_towards_2013,
+	title = {Towards {Elastic} {Stream} {Processing}: {Patterns} and {Infrastructure}.},
+	volume = {1018},
+	journal = {BD3@ VLDB},
+	author = {Sattler, Kai-Uwe and Beier, Felix},
+	year = {2013},
+	keywords = {Elastizität, Basic, Theorie},
+	pages = {49--54},
+	file = {Cormode - c 2013 for the individual papers by the papers’ au.pdf:C\:\\Users\\Beni\\Zotero\\storage\\AX9937U9\\Cormode - c 2013 for the individual papers by the papers’ au.pdf:application/pdf}
+}
+
+@inproceedings{cugola_tesla:_2010,
+	address = {Cambridge, United Kingdom},
+	title = {{TESLA}: a formally defined event specification language},
+	isbn = {978-1-60558-927-5},
+	shorttitle = {{TESLA}},
+	url = {http://portal.acm.org/citation.cfm?doid=1827418.1827427},
+	doi = {10.1145/1827418.1827427},
+	abstract = {The need for timely processing large amounts of information, ﬂowing from the peripheral to the center of a system, is common to diﬀerent application domains, and it has justiﬁed the development of several languages to describe how such information has to be processed. In this paper, we analyze such languages showing how most approaches lack the expressiveness required for the applications we target, or do not provide the precise semantics required to clearly state how the system should behave. Moving from these premises, we present TESLA, a complex event speciﬁcation language. Each TESLA rule considers incoming data items as notiﬁcations of events and deﬁnes how certain patterns of events cause the occurrence of others, said to be “complex”. TESLA has a simple syntax and a formal semantics, given in terms of a ﬁrst order, metric temporal logic. It provides high expressiveness and ﬂexibility in a rigorous framework, by oﬀering content and temporal ﬁlters, negations, timers, aggregates, and fully customizable policies for event selection and consumption. The paper ends by showing how TESLA rules can be interpreted by a processing system, introducing an eﬃcient event detection algorithm based on automata.},
+	language = {en},
+	urldate = {2018-10-13},
+	booktitle = {Proceedings of the {Fourth} {ACM} {International} {Conference} on {Distributed} {Event}-{Based} {Systems} - {DEBS} '10},
+	publisher = {ACM Press},
+	author = {Cugola, Gianpaolo and Margara, Alessandro},
+	year = {2010},
+	pages = {50},
+	file = {Cugola und Margara - 2010 - TESLA a formally defined event specification lang.pdf:C\:\\Users\\Beni\\Zotero\\storage\\5EA732K7\\Cugola und Margara - 2010 - TESLA a formally defined event specification lang.pdf:application/pdf}
+}
+
+@article{cugola_complex_2012,
+	title = {Complex event processing with {T}-{REX}},
+	volume = {85},
+	issn = {01641212},
+	url = {http://linkinghub.elsevier.com/retrieve/pii/S0164121212000842},
+	doi = {10.1016/j.jss.2012.03.056},
+	abstract = {Several application domains involve detecting complex situations and reacting to them. This asks for a Complex Event Processing (CEP) middleware speciﬁcally designed to timely process large amounts of event notiﬁcations as they ﬂow from the peripheral to the center of the system, to identify the composite events relevant for the application. To answer this need we designed T-Rex, a new CEP middleware that combines expressiveness and efﬁciency. On the one hand, it adopts a language (TESLA) explicitly conceived to easily and naturally describe composite events. On the other hand, it provides an efﬁcient event detection algorithm based on automata to interpret TESLA rules. Our evaluation shows that the T-Rex engine can process a large number of complex rules with a reduced overhead, even in the presence of challenging workloads.},
+	language = {en},
+	number = {8},
+	urldate = {2018-10-13},
+	journal = {Journal of Systems and Software},
+	author = {Cugola, Gianpaolo and Margara, Alessandro},
+	month = aug,
+	year = {2012},
+	pages = {1709--1728},
+	file = {Cugola und Margara - 2012 - Complex event processing with T-REX.pdf:C\:\\Users\\Beni\\Zotero\\storage\\8BTLREN8\\Cugola und Margara - 2012 - Complex event processing with T-REX.pdf:application/pdf}
+}
+
+@misc{noauthor_home_nodate,
+	title = {Home page},
+	url = {http://www.espertech.com/},
+	abstract = {Esper (Java) and NEsper (.net) are open-source software products for Complex Event Processing (CEP), Streaming Analytics and Streaming SQL that analyze series of events for deriving conclusions.},
+	language = {en-US},
+	urldate = {2018-10-13},
+	journal = {EsperTech},
+	file = {Snapshot:C\:\\Users\\Beni\\Zotero\\storage\\LYYFEERW\\www.espertech.com.html:text/html}
 }
 
 @Comment{jabref-meta: databaseType:biblatex;}
