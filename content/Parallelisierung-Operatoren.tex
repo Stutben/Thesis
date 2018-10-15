@@ -7,7 +7,7 @@ Zwei der vorgestellten Algorithmen werden gewählt und im Verlauf dieser Arbeit 
 
 CEP-Systeme ermöglichen es dem Anwender Datenströme zu verarbeiten.
 Der Unterschied zu reinen Datenstrom verarbeitenden Systemen liegt darin, dass die Operationen oft komplexer sind und einen Zustand besitzen  \cite{carbone_towards_2013}.
-Deshalb verwenden CEP-Systeme oft SQL-ähnliche Abfragesprachen, welche auf dem Datenstrom ausgeführt werden \cite{carbone_towards_2013}.
+Deshalb verwenden CEP-Systeme oft SQL-ähnliche Abfragesprachen, die auf dem Datenstrom ausgeführt werden \cite{carbone_towards_2013}.
 Wie der Datenstrom verarbeitet wird ist durch eine sogenannte Topologie beschrieben.
 Die Topologie wird durch Operatoren, die eine Funktion auf den Daten durchführen, und deren Abfolge definiert.
 
@@ -162,7 +162,7 @@ Anschließend wird eine Vorhersage basierend auf der Zeitreihe der gemessenen We
 Die Autoren nennen den gleitenden Durchschnitt als möglichen Ansatz, legen aber kein spezielles Vorhersagemodell fest. 
 Mit der Vorhersage kann die zukünftige Antwortzeit eines Operators berechnet werden.
 Sie ist die Summe aus durchschnittlicher Bearbeitungsdauer und der Zeit, für die sich ein Event in der Warteschlange des Operators befindet.
-Für die Bestimmung des Parallelisierungsgrades wird eine Kostenfunktion optimiert, welche abhängig vom Parallelisierungsgrad und der Antwortzeit ist.
+Für die Bestimmung des Parallelisierungsgrades wird eine Kostenfunktion optimiert, die abhängig vom Parallelisierungsgrad und der Antwortzeit ist.
 Diese berücksichtigt die Kosten durch Ressourcenverbrauch, Kosten für das Skalieren und die Kosten für Verletzung der maximal festgelegten Antwortzeit eines Operators. 
 
 Ein weiterer Algorithmus mit Warteschlangen-Theorie wurde von Lohrmann et al. vorgeschlagen \cite{lohrmann_elastic_2015}.
@@ -185,7 +185,7 @@ Dessen Ziel ist die konstante Einhaltung der Latenz eines Tupels.
 Der Ansatz unterscheidet sich außerdem von vielen anderen Algorithmen dadurch, dass die Gesamtlatenz eines Tupels in der Topologie betrachtet wird.
 Außerdem wurde der Algorithmus von Zacheilas et al. als rein präventiver Algorithmus gewählt.
 Dieser wählt den Parallelisierungsgrad durch die Optimierung einer Kostenfunktion über einen Graphen.
-Die exakte Funktionsweise und die vorliegende Implementation der Algorithmen sind in den Kapiteln sieben und acht beschrieben.
+Die exakte Funktionsweise und die vorliegende Implementierung der Algorithmen sind in den Kapiteln sieben und acht beschrieben.
 
 
 

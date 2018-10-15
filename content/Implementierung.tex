@@ -6,14 +6,14 @@ Die reale CEP-Topologie wird in dem Framework als abstrahiertes Graphen-Modell a
 Dadurch wird ermöglicht, dass Algorithmen, die den Parallelisierungsgrad von Operatoren berechnen, unabhängig vom Zielsystem implementiert werden können.
 Anschließend können die implementierten Algorithmen für mehrere verschiedene CEP-Systeme eingesetzt werden, ohne dass Anpassungen am Algorithmus vorgenommen werden müssen.
 Außerdem skaliert das Framework automatisch die einzelnen Operatoren mit den berechneten Parallelisierungsgraden.
-Die vorliegende Architektur ermöglicht die zeitgleiche Steuerung mehrerer CEP-Topologien, welche auch über diverse CEP-Systeme verteilt werden können. 
+Die vorliegende Architektur ermöglicht die zeitgleiche Steuerung mehrerer CEP-Topologien, die auch über diverse CEP-Systeme verteilt werden können. 
 
 \section{Architektur}
 
 Die Architektur des Frameworks besteht aus mehreren Komponenten und verfolgt zwei Ziele.
 Eines der beiden Hauptziele der Architektur ist, dass das System einfach um weitere Algorithmen erweitert werden kann.
-Um dieses Ziel zu erreichen, wurde eine Abstraktionsebene eingeführt, welche die Eigenschaften der realen CEP-Topologie repräsentiert.
-Diese Abstraktion wird durch ein Graphen-Modell repräsentiert, welches einen gerichteten, azyklischen Graphen modelliert.
+Um dieses Ziel zu erreichen, wurde eine Abstraktionsebene eingeführt, die die Eigenschaften der realen CEP-Topologie repräsentiert.
+Diese Abstraktion wird durch ein Graphen-Modell repräsentiert, das einen gerichteten, azyklischen Graphen modelliert.
 Die implementierten Algorithmen arbeiten ausschließlich auf dem abstrahierten Modell.
 Für die Implementierung eines neuen Algorithmus, müssen nur die Daten aus dem Modell ausgelesen und anschließend verarbeitet werden.
 Außerdem ist es möglich mehrere Algorithmen für das gleiche Modell auszuführen und ihre Ergebnisse zu vergleichen.
@@ -63,8 +63,8 @@ Das Maximum kann entsprechend der Ressourcen, die im CEP-System zur Verfügung s
 Somit kann über Pfade und Operatoren die logische Struktur der Topologie im Modell dargestellt werden.
 
 Die ausführende Ebene, oder physische Struktur, wird durch Tasks und Kanäle repräsentiert.
-Tasks sind die Recheninstanzen welche die Operation eines Operators auf Tupel ausführen.
-In der vorliegenden Implementation des Graphen-Modells ist die Zwischenspeicherung der Messwerte auf Task-Ebene vorgesehen.
+Tasks sind die Recheninstanzen, die die Operation eines Operators auf Tupel ausführen.
+In der vorliegenden Implementierung des Graphen-Modells ist die Zwischenspeicherung der Messwerte auf Task-Ebene vorgesehen.
 Somit wird ermöglicht, dass ein detailliertes Modell der Topologie im Frameowork erzeugt werden kann.
 Die Kennung der Tasks wird vom Operator automatisch erzeugt.
 Sie wird aus dem Namen des Operators und einer fortlaufenden Nummer wie folgt gebildet: \textit{<Name>\_<Nummer>}.
@@ -94,7 +94,7 @@ Um die Messwerte für Operatoren zu berechnen ist pro Messwert eine statische Me
 
 Die Kommunikation zwischen den Tasks wird durch die Kanäle repräsentiert.
 Diese speichern Metriken der Kommunikationskanäle zwischen Tasks.
-Für die Implementation des Modells wurde die Annahme getroffen, dass alle Tasks eines Operators mit allen Tasks der vorhergehenden und nachfolgenden Operatoren kommunizieren können.
+Für die Implementierung des Modells wurde die Annahme getroffen, dass alle Tasks eines Operators mit allen Tasks der vorhergehenden und nachfolgenden Operatoren kommunizieren können.
 Die Anzahl an Kanälen zwischen zwei Operatoren ist also das Produkt aus deren Parallelisierungsgraden.
 Für Kanäle sind folgende Messwerte vorgesehen:
 
@@ -155,8 +155,8 @@ Der zweite Teil, der Adapter, befindet sich auf der Maschine des zu steuernden C
 Er nimmt REST-Anfragen entgegen und setzt diese in Befehle für die API des CEP-Systems um.
 Der Adapter ist somit der Teil, der das Kontroll-Schnittstelle des CEP-Systems auf eine einheitliche REST-Schnittstelle abstrahiert.
 Außerdem kapselt der Adapter die zurückgelieferten Messwerte des CEP-Systems und vereinheitlicht sie für das Graphen-Modell.
-Deshalb ist die Implementation des Adapters essentiell für die Qualität des Graphen-Modells.
-Die Implementation des Adapters für das CEP-System Heron wird in Kapitel sechs ausführlich behandelt.
+Deshalb ist die Implementierung des Adapters essentiell für die Qualität des Graphen-Modells.
+Die Implementierung des Adapters für das CEP-System Heron wird in Kapitel sechs ausführlich behandelt.
 
 Die Kommunikation über die REST-API ermöglicht es, dass die beiden teile auf verschiedenen Maschinen installiert sein können.
 Durch die Fern-Steuerung über die Schnittstelle können mit einer einzelnen Installation des Frameworks mehrere CEP-Systeme und Topologien gleichzeitig gesteuert werden.

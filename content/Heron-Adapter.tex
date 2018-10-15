@@ -22,7 +22,7 @@ Die korrekte IP-Adresse und der korrekte Port genügen um den Adapter für eine 
 Außerdem können die Merkmale, die eine Topologie identifizieren, bei unterschiedlichen CEP-Systemen variieren.
 Bei variierenden Merkmalen zur Identifizierung ist es nicht möglich eine einheitliche Schnittstelle zu erzeugen.
 Mit der gewählten Architektur können die Merkmale beim Start des Adapter angegeben werden.
-Jede Implementation eines Adapters kann die Start-Parameter beliebig festlegen und bietet somit Flexiblität für die Definition der Topologie.
+Jede Implementierung eines Adapters kann die Start-Parameter beliebig festlegen und bietet somit Flexiblität für die Definition der Topologie.
 Es ist aber möglich mehrere Adapter auf unterschiedlichen Ports zu starten um mehrere Topologien des selben CEP-Systems ansprechen zu können.
 
 Um den Adapter für Heron zu Starten werden folgende Parameter benötigt:
@@ -42,7 +42,7 @@ Dieser nimmt Anfragen an die REST-Schnittstelle entgegen.
 
 Werden über die REST-Schnittstelle Messwerte oder der Aufbau der Topologie angefragt, leitet der Adapter die Anfrage an Heron weiter.
 Heron bietet für die Abfrage von Messwerten selbst eine REST-Schnittstelle an.
-Die Implementation des Adapters kapselt die REST-Schnittstelle von Heron und abstrahiert sie.
+Die Implementierung des Adapters kapselt die REST-Schnittstelle von Heron und abstrahiert sie.
 Messwerte werden immer für die in den Startparametern definierte Topologie abgefragt.
 Wie Metriken von Heron bereit gestellt und wie diese vom Adapter angepasst werden ist im folgenden Kapitel detailliert ausgeführt.
 
@@ -77,7 +77,7 @@ Betrachten wir zuerst die Quell-Operatoren:
 \item{\_\_ack-count: Dieser Wert beschreibt die Anzahl an Tupel, die durch das CEP-System bereits als erfolgreich abgearbeitet an den Quell-Operator zurückgemeldet wurden. 
 Dieser Messwert wird nur erfasst, falls die Topologie für die Bestätigung der Tupel konfiguriert und implementiert ist.}
 
-\item{\_\_fail-count: Dieser Wert gibt die Anzahl an Tupel an, bei denen während der Verarbeitung Fehler aufgetreten sind. Tritt ein Fehler auf wird dies bei entsprechender Implementation an den Quell-Operator gemeldet. Dieser Messwert wird nur gemessen, falls die Topologie für die Bestätigung der Tupel konfiguriert und implementiert ist.}
+\item{\_\_fail-count: Dieser Wert gibt die Anzahl an Tupel an, bei denen während der Verarbeitung Fehler aufgetreten sind. Tritt ein Fehler auf wird dies bei entsprechender Implementierung an den Quell-Operator gemeldet. Dieser Messwert wird nur gemessen, falls die Topologie für die Bestätigung der Tupel konfiguriert und implementiert ist.}
 
 \item{\_\_emit-count: Gibt die Anzahl von Tupel an, die von dem Quell-Operator ausgegeben wurden.}
 
@@ -94,7 +94,7 @@ Verarbeitende Operatoren:
 
 \item{\_\_fail-count: Ebenso kann in der Methode, die die Tupel verarbeitet, das Auftreten eines Fehlers an den Quell-Operator signalisiert werden. Der Zeitpunkt der Benachrichtigung ist wiederum vollständig von der Implementierung der Methode abhängig. Der Messwert gibt die Anzahl der an den Quell-Operator signalisierten Fehler an.}
 
-\item{\_\_execute-latency: Dieser Messwert beschreibt die durchschnittliche Laufzeit der Methode, die die Tupel verarbeitet, in Nanosekunden. Ein Tupel kann zu jedem beliebigen Zeitpunkt der Methode ausgegeben werden. Tupel können auch an mehreren Zeitpunkten während der Ausführung der Methode ausgegeben werden. Dies bedeutet, dass dieser Messwert nicht zwingend die Dauer bis zur Ausgabe des Tupels darstellt. Dies trifft ebenso für die Benachrichtigungen über Erfolg oder Fehlschlag an den Quell-Operator zu. Ob der Messwert für die Latenz des Tupels im Operator aussagekräftig ist, hängt von der Implementation des Operators ab.}
+\item{\_\_execute-latency: Dieser Messwert beschreibt die durchschnittliche Laufzeit der Methode, die die Tupel verarbeitet, in Nanosekunden. Ein Tupel kann zu jedem beliebigen Zeitpunkt der Methode ausgegeben werden. Tupel können auch an mehreren Zeitpunkten während der Ausführung der Methode ausgegeben werden. Dies bedeutet, dass dieser Messwert nicht zwingend die Dauer bis zur Ausgabe des Tupels darstellt. Dies trifft ebenso für die Benachrichtigungen über Erfolg oder Fehlschlag an den Quell-Operator zu. Ob der Messwert für die Latenz des Tupels im Operator aussagekräftig ist, hängt von der Implementierung des Operators ab.}
 
 \item{\_\_process-latency: Dieser Wert gibt die Dauer in Nanosekunden an, die benötigt wurde um die Verarbeitung eines Tupels als erfolgreich oder fehlerhaft zu melden. Er misst jedoch nicht die Latenz des Tupels im Operator. Gemessen wird ausschließlich die Zeit von Beginn der verarbeitenden Methode bis zu dem Zeitpunkt, an dem die Benachrichtigung, ob das Tupel erfolgreich verarbeitet oder fehlerbehaftet war, erzeugt wird. Die Rückmeldung innerhalb der Methode kann, wie oben beschrieben, zu einem beliebigen Zeitpunkt während der Ausführung geschehen.}
 
@@ -121,7 +121,7 @@ Die vollständige Dokumentation der REST-Schnittstelle ist Tabelle 6.1 zu entneh
 
 
 Betrachtet man die standardmäßig von Heron gelieferten Messwerte im vorherigen Kapitel, so ist ersichtlich, dass Heron nicht alle benötigten Messwerte für die REST-Schnittstelle liefert.
-Deshalb verlangt die Implementation des Adapters, dass die fehlenden Werte bestmöglich approximiert werden.
+Deshalb verlangt die Implementierung des Adapters, dass die fehlenden Werte bestmöglich approximiert werden.
 
 Sämtliche Latenzen werden vor der Weitergabe über die Schnittstelle auf Millisekunden umgerechnet.
 Heron unterstützt des Weiteren nur die Task-Latenz jedoch nicht die Bearbeitungsdauer.
@@ -130,7 +130,7 @@ Wie in Kapitel vier beschrieben ist die hier getroffene Annahme, dass die Task-L
 
 Ein weiterer Punkt ist die Anzahl eingehender Tupel am Operator.
 Dieser Messwert wird in Heron nicht erfasst.
-Daher wird für die Implementation des Operators angenommen, dass die Anzahl ausgehender Tupel des Vorgängers gleich der Anzahl eingehender Tupel am betrachteten Operator sind.
+Daher wird für die Implementierung des Operators angenommen, dass die Anzahl ausgehender Tupel des Vorgängers gleich der Anzahl eingehender Tupel am betrachteten Operator sind.
 
 Die Varianzen der jeweiligen Werte werden mit Hilfe der von Heron gelieferten Zeitreihe berechnet.
 Die Größe der Stichprobe ist die Anzahl der minütlichen Werte, die von Heron geliefert werden.

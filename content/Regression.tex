@@ -1,18 +1,18 @@
 \chapter{Algorithmus mit Regression}
 
-Als weitere Option zum Skalieren der Topologie wurde der Algorithmus von Zacheilas et al. \cite{zacheilas_elastic_2015} für das Framework implementiert.
-Er berechnet, im Gegensatz zum von Lohrmann et al., nicht die gegenwärtige Auslastung des Systems sondern bedient sich der Regression um den zukünftigen Zustand des Systems vorherzusagen.
+Als weitere Option die Topologie zu skalieren wurde der Algorithmus von Zacheilas et al. \cite{zacheilas_elastic_2015} für das Framework implementiert.
+Er berechnet, im Gegensatz zum Algorithmus von Lohrmann et al., nicht die gegenwärtige Auslastung des Systems sondern bedient sich der Regression um den zukünftigen Zustand des Systems vorherzusagen.
 Dies bedeutet konkret, dass der Algorithmus versucht präventiv auf zukünftige Ereignisse zu reagieren, während der der Algorithmus mit Warteschlangen-Theorie reaktiv agiert.
 Das Ziel des Algorithmus ist die Topologie möglichst vorausschauend anzupassen.
 
 Um den zukünftigen Zustand des Systems vorherzusagen verwenden Zacheilas et al. Gauss-Prozesse.
 Gauss-Prozesse sind nicht-lineare Regressions-Verfahren und können für mehrdimensionale Regressionen verwendet werden \cite{rasmussen2004gaussian}.
 Im Speziellen werden mit Hilfe des Gauss-Prozesses die verpassten Tupel eines Operators vorhergesagt.
-Verpasste Tupel sind alle Tupel die über ein Zeitfenster am Operator angefallen aber in diesem nicht abgearbeitet worden sind.
+Verpasste Tupel sind alle Tupel, die über ein Zeitfenster am Operator angefallen aber in diesem nicht abgearbeitet worden sind.
 Mit Hilfe eines Gauss-Prozesses können die verpassten Tupel mit Abhängigkeit zur Zeit und zum Parallelisierungsgrad des Operators vorhergesagt werden.
 
-Für eine vorausschauende Planung der Topologie, werden Vorhersagen für mehrere in der Zukunft liegende Zeitfenster und für verschiedene Parallelisierungsgrade getroffen.
-Diese werden wie in Abbildung +++++++++++++++++ zu sehen in einem Graph modelliert.
+Für eine vorausschauende Planung der Topologie werden Vorhersagen für mehrere in der Zukunft liegende Zeitfenster und für verschiedene Parallelisierungsgrade getroffen.
+Diese werden wie in Abbildung 8.1 zu sehen in einem Graph modelliert.
 Jeder Knoten \(v_{kw}\) stellt dabei eine Vorhersage für ein zukünftiges Zeitfenster \(w\) mit einem Parallelisierungsgrad \(k\) dar.
 Der Operator kann zu einem gegebenen Zeitfenster einen beliebigen aber festen Parallelisierungsgrad zwischen minimalem und maximalem Parallelisierungsgrad annehmen.
 Der Knoten \(v_{init}\) stellt den momentan messbaren Zustand des Operators dar.
@@ -24,7 +24,7 @@ So entsteht ein Graph der die möglichen Zustandsübergänge des Operators zu ve
 \end{figure}
 
 Um die optimalen Zustandsübergänge zu finden werden nun alle Kanten mit Gewichten versehen.
-Die Gewichte der Kanten werden mit einer von Zacheilas et al. definierten Kostenfunktion bestimmt. Sie ist eine gewichtete Summe mit drei Summanden und wird durch folgenden Term definiert\cite{zacheilas_elastic_2015}:
+Die Gewichte der Kanten werden mit einer von Zacheilas et al. definierten Kostenfunktion bestimmt. Sie ist eine gewichtete Summe mit drei Summanden und wird durch folgenden Term definiert \cite{zacheilas_elastic_2015}:
 
 \begin{equation*}
 \begin{split}
@@ -38,34 +38,34 @@ C(v_{ij}v_{i^\prime j^\prime}) = VT_{i^\prime j^\prime} \times  C_A + p^\prime \
 \end{equation*}
 
 
-Der Erste der Summanden ist die Anzahl der verpassten Tupel im zukünftigen Zustand \(VT_{i^\prime j^\prime}\), die mit einem benutzerdefinierten Kostenfaktor \(C_A\) multipliziert werden.
+Der Erste der Summanden ist die Anzahl der verpassten Tupel im zukünftigen Zustand \(VT_{i^\prime j^\prime}\), die mit einem benutzerdefinierten Kostenfaktor \(C_A\) multipliziert wird.
 Der zweite Summand erfasst die Kosten der Ressourcen, die benötigt werden um einen Operator auszuführen.
-Die Kosten errechnen aus dem Produkt des zukünftigen Parallelisierungsgrades \(p^\prime\) und den benutzerdefinierten Kosten \(C_B\) eines einzelnen Tasks.
-Der dritte Teil der Summe berücksichtigt den Aufwand, der durch skalieren eines Operators entsteht.
+Die Kosten errechnen sich aus dem Produkt des zukünftigen Parallelisierungsgrades \(p^\prime\) und den benutzerdefinierten Kosten \(C_B\) eines einzelnen Tasks.
+Der dritte Teil der Summe berücksichtigt den Aufwand der entsteht, wenn ein Operator skaliert wird.
 Das CEP-System muss hierzu die Verarbeitung der Tupel kurzfristig stoppen und das Routing in der Topologie anpassen.
 Die Kostengewichtung \(C_C\) ist ebenfalls durch den Benutzer zu bestimmen.
 Sind alle Kanten gewichtet kann anschließend mittels eines Algorithmus, der den kürzesten Pfad ermittelt, die optimale Abfolge von Zustandsübergängen berechnet werden.
-Der erste Zustand in der gefundenen Abfolge bestimmt den Parallelisierungsgrad des Operators.
+Der erste Zustand auf dem kürzesten Pfad durch den Graph bestimmt den Parallelisierungsgrad des Operators.
 
 \section{Implementierung}
 
 Im Folgenden sollen die Besonderheiten der Implementierung des Algorithmus für das Framework diskutiert werden.
-Für die Implementation des Graphen der Zustandsübergänge wurde die Bibliothek JGraphT \cite{noauthor_welcome_nodate} verwendet.
-Diese liefert ebenfalls eine Implementation des Dijkstra-Algorithmus um den kürzesten Pfad im Graphen zu bestimmen.
+Für die Implementierung des Graphen der Zustandsübergänge wurde die Bibliothek JGraphT \cite{noauthor_welcome_nodate} verwendet.
+Diese liefert ebenfalls eine Umsetzung des Dijkstra-Algorithmus um den kürzesten Pfad im Graphen zu bestimmen.
 Die Umsetzung der Regression mittels Gauss-Prozessen erfolgte mit der Bibliothek Smile \cite{noauthor_smile_nodate}.
 
 \subsection{Training des Vorhersagemodells}
 
-Die Implementation verwendet ebenfalls das Graph-Modell des Frameworks.
+Die Implementierung verwendet ebenfalls das Graphen-Modell des Frameworks.
 Allerdings wird für die Vorhersage eine Historie der Messdaten aus dem CEP-System benötigt.
-Da das Graph-Modell des Frameworks aber nur den aktuellen Status der Topologie repräsentiert, ist dieses nicht ausreichend.
+Da das Graphen-Modell des Frameworks aber nur den aktuellen Status der Topologie repräsentiert, ist dieses nicht ausreichend.
 Um das Modell für die Regression zu trainieren, werden deshalb CSV-Dateien eingelesen.
-Das Regressions-Modell wird zu Beginn für alle Operatoren trainiert, sodass während des aktiven Betriebs nur noch das Graph-Modell verwendet wird.
+Das Regressions-Modell wird zu Beginn für alle Operatoren trainiert, sodass während des aktiven Betriebs nur noch das Graphen-Modell verwendet wird.
 Während dem Betrieb können die Regressions-Modelle der einzelnen Operatoren jeweils einzeln aktualisiert werden.
-Ddie Laufzeit eines Training-Vorgangs beträgt \(O(n^3)\) \cite{zacheilas_elastic_2015}.
-Aufgrund der Laufzeit ist es sinnvoll Operatoren während der Laufzeit einzeln aktualisieren zu können.
+Die Laufzeit eines Training-Vorgangs beträgt \(O(n^3)\) \cite{zacheilas_elastic_2015}.
+Aufgrund der Laufzeit ist es sinnvoll Operatoren einzeln aktualisieren zu können während das Framework eingesetzt wird.
 Bei der Aktualisierung des Modells eines Operators wird das alte Modell verworfen und durch ein neues ersetzt.
-Das neue Modell wird ausschließlich aus den zuletzt eingelesenen Daten erzeugt.
+Das neue Regressions-Modell wird ausschließlich aus den zuletzt eingelesenen CSV-Daten erzeugt.
 
 Außerdem werden in der momentan implementierten Version des Algorithmus andere Eingabewerte als in der Originalversion verwendet.
 Ursprünglich werden der momentane Zeitstempel, die Tageszeit und der Wochentag für die Vorhersage der eingehenden Tupel verwendet.
@@ -75,18 +75,18 @@ Die Tageszeit und der Wochentag wurden daher entfernt und durch die Zeit ersetzt
 
 \subsection{Vorhersage von verpassten Tupeln}
 
-Ein essentieller Teil des Algorithmus ist die Kostenfunktion die auf der korrekten Vorhersage von verpassten Tupeln beruht.
+Ein essentieller Teil des Algorithmus ist die Kostenfunktion, die auf der korrekten Vorhersage von verpassten Tupeln beruht.
 Zacheilas et al. berechnen die Tupel wie folgt \cite{zacheilas_elastic_2015}:
 
-\[\text{Verpasste Tupel} = \text{Anzahl eingehender Tupel} \times \text{Selektionsrate} - \text{Anzahl ausgegebener Tupel}\]
+\[\text{Verpasste Tupel} = \text{Anzahl eingehender Tupel} \times \text{Selektionsrate} - \text{Anzahl ausgegehener Tupel}\]
 
 Die Selektionsrate stellt dabei das Verhältnis der Anzahl ausgegebener Tupel pro eingehendem Tupel dar.
 Die Selektionsrate eines Operators wird als konstant angenommen.
-Die Vorhersage von Verpassten Tupeln basiert daher auf der Vorhersage der Anzahl eingehender Tupel und der Anzahl ausgehender Tupel.
-Ausgehende Tupel werden im von den Autoren vorgestellten System aber nicht gemessen.
-Sie berechnen die Anzahl der ausgehenden Tupel basierend auf der vergangenen Zeit, dem Parallelisierungsgrad, der vorhergesagten Latenz des Operators und der Anzahl eingehender Tupel.
-Da das in dieser Arbeit vorgestellte Framework die Daten für ausgehende Tupel liefert wird die Anzahl ausgehender Tupel für die Umsetzung des Algorithmus nicht berechnet.
-Stattdessen werden anstatt der Latenz des Operators direkt die Anzahl ausgehender Tupel vorhergesagt.
+Die Vorhersage von verpassten Tupeln basiert daher auf der Vorhersage der Anzahl eingehender Tupel und der Anzahl ausgehender Tupel.
+Ausgehende Tupel werden im von den Autoren vorgestellten CEP-System aber nicht gemessen.
+Sie berechnen deshalb die Anzahl der ausgehenden Tupel basierend auf der vergangenen Zeit, dem Parallelisierungsgrad, der vorhergesagten Task-Latenz und der Anzahl eingehender Tupel.
+Da das in dieser Arbeit vorgestellte Framework die Anzahl ausgehender Tupel bereitstellt wird dieser Wert für die Umsetzung des Algorithmus nicht berechnet.
+Stattdessen werden anstatt der Task-Latenz direkt die Anzahl ausgehender Tupel vorhergesagt.
 
 \subsection{Kern der Gauss-Prozesse}
 Für die Regression der Anzahl eingehender und ausgehender Tupel werden vom Algorithmus sogenannte Gauss-Prozesse verwendet.
@@ -94,7 +94,7 @@ Sie ermöglichen zu einem n-dimensionalen Eingabevektor \(x \in \mathbb{R}^n\) e
 Für diese Schätzung bedienen sich Gaußprozesse einer sogenannten Kovarianz-Matrix.
 Die Kovarianz-Matrix wird mit einer Kovarianz-Funktion aus einem gegebenen Datensatz, den Trainingsdaten, berechnet.
 Die Trainingsdaten bestehen aus mehreren n-dimensionalen Eingabevektoren \(x\) und deren zugehöriger Zielwert \(y\).
-Die Kovarianz-Funktion \(k(x,x^\prime\) bestimmt die Korrelation zwischen zwei Eingabevektoren \(x \in \mathbb{R}^n\) aus den Trainingsdaten.
+Die Kovarianz-Funktion \(k(x,x^\prime)\) bestimmt die Korrelation zwischen zwei Eingabevektoren \(x \in \mathbb{R}^n\) aus den Trainingsdaten.
 Die Wahl der Kovarianz-Funktion hat dabei maßgeblichen Einfluss auf die berechnete Korrelation der Werte und somit auch auf das Modell des Gauss-Prozesses.
 Eine Kovarianz-Funktion muss per Definition symmetrisch sein \cite{rasmussen2004gaussian}.
 Die Symmetrie der Kovarianz-Funktion bedeutet, dass \(k(x,x^\prime) = k(x,x^\prime)\) gilt.
@@ -105,12 +105,12 @@ Zacheilas et al. verwenden für Ihre Vorhersagemodelle folgenden Kern:
 
 \[k(x, x^\prime) = \sigma^2 \exp{\left( - \frac{1}{2} \sum^{n}_{d=1} \frac{x_d-x_{d}^{\prime}}{\lambda_d}\right)}\]
 
-Wobei \(\sigma\) und \(\lambda\) hyperparameter des Modells darstellen.
-Sie werden im Kapitel ******************** Parameter betrachtet.
+Wobei \(\sigma\) und \(\lambda\) Hyperparameter des Modells darstellen.
+Sie werden im Kapitel 8.2, Parameter betrachtet.
 Es ist offensichtlich erkennbar, dass der von den Autoren vorgeschlagene Kernel nicht symmetrisch ist.
-Das Ergebnis der Subtraktion von \(x_d - x^\prime_d\) kann sowohl positiv als auch negativ sein.
+Das Ergebnis der Subtraktion \(x_d - x^\prime_d\) kann sowohl positiv als auch negativ sein.
 Somit ist der Kern keine gültige Kovarianz-Funktion.
-Für die vorliegende Implementation wurde der Kern wie folgt geändert, sodass der Ergebnis der Subtraktion als absoluter Betrag verwendet wird.
+Für die vorliegende Implementierung wurde der Kern wie folgt geändert, sodass das Ergebnis der Subtraktion als absoluter Betrag verwendet wird.
 
 
 \[k(x, x^\prime) = \sigma^2 \exp{\left( - \frac{1}{2} \sum^{n}_{d=1} \frac{|x_d-x_{d}^{\prime}|}{\lambda_d}\right)}\]
@@ -119,24 +119,24 @@ Grundsätzlich ist der Kern in Smile als Java-Interface implementiert und somit 
 
 \subsection{Pfad-Zurückweisung}
 
-Zacheilas et al. sehen in der Originalversion des Algorithmus eine Zurückweisung eines gefundenen kürzesten Pfades vor.
-Die durch die Verwendung des Gauss-Prozesses vorhergesagten Werte unterliegen einer Normalverteilung.
-Mit Hilfe der Standardabweichung der Normalverteilung kann berechnet werden, wie wahrscheinliches es ist, dass der vorhergesagte Mittelwert eintrifft \cite{zacheilas_elastic_2015}.
+Zacheilas et al. sehen in der Originalversion des Algorithmus eine Möglichkeit vor den gefundenen kürzesten Pfad zurückzuweisen.
+Die durch den Gauss-Prozesses vorhergesagten Werte unterliegen einer Normalverteilung.
+Mit Hilfe der Standardabweichung und der Normalverteilung kann berechnet werden, wie wahrscheinlich es ist, dass der vorhergesagte Mittelwert eintrifft \cite{zacheilas_elastic_2015}.
 Diesen Umstand nutzen die Autoren um einen gefundenen Pfad zurückzuweisen, falls der Eintritt des vorhergesagten Wertes zu unwahrscheinlich ist.
-Diese Funktionalität ist in der momentanen Version der vorliegenden Implementation im Framework nicht vorhanden.
+Diese Funktionalität ist in der momentanen Version der vorliegenden Implementierung im Framework nicht vorhanden.
 
 \section{Parameter}
 
 Dieser Abschnitt beschreibt die Parameter die es ermöglichen den Algorithmus anzupassen.
 In dem Fall des Regression-Algorithmus dienen Sie hauptsächlich dazu das unterliegende Kosten- und Regressionsmodell anzupassen.
-Wie bei dem Algorithmus mit Warteschlangentheorie werden die im Graph-Modell festgelegten minimalen und maximalen Parallelisierungsgrade berücksichtigt.
-Die folgenden Parameter sind als finale statische Attribute in den Klassen der Implementation des Algorithmus zu finden.
+Wie bei dem Algorithmus mit Warteschlangentheorie werden die im Graphen-Modell festgelegten minimalen und maximalen Parallelisierungsgrade berücksichtigt.
+Die folgenden Parameter sind als finale statische Attribute in den Klassen der Implementierung des Algorithmus zu finden.
 
 \subsection{Trainingsdaten}
 
 Name: INPUT\_TRAINING\_DATA\_FOLDER / OUTPUT\_TRAINING\_DATA\_FOLDER
 
-Standardwert: null
+Standardwert: NULL
 
 Wertebereich: alphanumerisch
 
@@ -145,8 +145,8 @@ Die Daten müssen im CSV-Format bereitgestellt werden.
 Dabei ist zu beachten, dass als Trennzeichen das Leerzeichen erwartet wird.
 Für jedes Vorhersagemodell wird eine eigene Datei mit Daten benötigt.
 Es wird somit erwartet, dass in dem angegebenen Verzeichnis zwei Dateien pro Operator vorliegen.
-Eine Datei beinhaltet die Daten für die Vorhersage der Anzahl eingehender Tupel.
-Die Andere stellt die Daten für die Vorhersage der Anzahl ausgehender Tupel bereit.
+Eine Datei beinhaltet die Daten um das Modell für die Anzahl eingehender Tupel zu trainieren.
+Die Andere stellt die Daten des Modells für die  Anzahl ausgehender Tupel bereit.
 Die Datei für eingehende Tupel muss folgenden Namen besitzen: ''<Operator>\_input\_train.csv''.
 Analog gilt für ausgehende Tupel ''<Operator>\_output\_train.csv''.
 
@@ -176,27 +176,31 @@ LAMBDA\_OUTPUT & (1.0, 1.0, 1.0) & \(x \in \mathbb{R}^3 0\) \\
 \end{tabular}
 \end{table}
 
-Die Hyperparameter dienen hauptsächlich der Konfiguration des Kernels.
+Die Hyperparameter dienen hauptsächlich der Konfiguration des Kerns.
 Sigma ist eine Größe mit der der Kernel multipliziert wird.
-Der Parameter kann dazu verwendet werden die Korrelation der Werte grundsätzlich zu verkleinern oder zu vergrößern.
-Lamda wird verwendet um die Komponenten des Eingabevektors zu gewichten.
-Für den verwendeten Kernel bedeutet das, dass der negative Exponent kleiner wird wenn \(lambda\) größer wird.
+Der Parameter kann dazu verwendet werden die Korrelation der Eingabevektoren grundsätzlich zu verkleinern oder zu vergrößern.
+\(\lambda\) wird verwendet um die Komponenten des Eingabevektors zu gewichten.
+Für den verwendeten Kernel bedeutet das, dass der negative Exponent kleiner wird wenn \(\lambda\) größer wird.
 Im Umkehrschluss fällt die Korrelation für diesen Wert des Eingabevektors höher aus.
 
 Der Wert für den Zeitstempel verdient besondere Beachtung.
 Da der Zeitstempel einen absoluten Zeitpunkt markiert, verändert sich die Korrelation mit jeder Anwendung des Kernels.
-Hier muss das \(lambda\) gegebenenfalls nachjustiert werden.
-Das \(lambda\) für die Vorhersage der ausgehenden Tupel sollte zusätzlich berücksichtigen, dass der Parallelisierungsgrad im Normalfall eine kleinere Größenordnung als die anderen Werte besitzt.
-Daher weist der Parallelisierungsgrad tendenziell höhere Korrelationen auf als die anderen Komponenten.
-Dieser Umstand sollte gegebenenfalls mit \(lambda\) ausgeglichen werden.
+Hier muss das entsprechende Element in \(\lambda\) gegebenenfalls nachjustiert werden.
+
+Um die Anzahl ausgehender Tupel möglichst korrekt vorherzusagen sollte in \(\lambda\) berücksichtigt sein, dass der Parallelisierungsgrad im Normalfall eine kleinere Größenordnung als die anderen Werte besitzt.
+Daher weist der Parallelisierungsgrad tendenziell eine höhere Korrelationen als die anderen Komponenten auf.
+Dieser Umstand sollte gegebenenfalls mit \(\lambda\) ausgeglichen werden.
 
 \subsection{Kostenfunktion}
 
-Die vorgestellte Kostenfunktion bietet drei verschiedene Eingabegrößen, die durch den Benutzer getätigt werden müssen.
-Die Kostenfunktion implementiert ein Interface und wird bei der Erzeugung der Regressionsmodelle als Parameter übergeben
-Somit ist die Kostenfunktion gegen andere Varianten austauschbar.
+Die vorgestellte Kostenfunktion bietet drei verschiedene Kostenfaktoren, die durch den Benutzer festgelegt werden müssen.
 Die Kostenfaktoren der Funktion können über den Konstruktor angegeben werden.
 Bei einem parameterlosen Aufruf des Konstruktors initialisiert dieser die Funktion mit eins.
+
+Die Kostenfunktion implementiert ein Java-Interface und wird bei der Erzeugung der Regressions-Modelle als Parameter übergeben.
+Somit ist die Kostenfunktion gegen andere Varianten austauschbar.
+
+
 
 
 

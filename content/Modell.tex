@@ -8,7 +8,7 @@ Deshalb soll in diesem Kapitel das für die vorliegende Arbeit verwendete Modell
 
 \section{Topologie als Graph}
 
-In der Literatur werden Topologien oft als Graph dargestellt.
+In der Literatur werden Topologien in datenstrom-verarbeitenden Systemen oft als Graph dargestellt.
 Dabei werden Operatoren als Knoten und der Fluss des Datenstroms zwischen Operatoren als Kanten dargestellt.
 Das in dieser Arbeit verwendete Topologie-Modell besteht aus zwei unterschiedlichen gerichteten azyklischen Graphen.
 Die Darstellung der Topologie durch zwei Graphen wurde ebenfalls von Lohrmann et al. \cite{lohrmann_elastic_2015} verwendet.
@@ -43,7 +43,7 @@ Ein Operator kann, wie in der Abbildung skizziert, auch auf mehreren Pfaden vorh
 Allerdings kann ein spezifischer Operator nur einmal innerhalb eines Pfades auftreten, da es sich um einen azyklischen Graph handelt.
 
 In der gezeigten Topologie wird davon ausgegangen, dass Tupel selektiv weitergeleitet werden können.
-Das bedeutet, dass ein Operator, welcher sich auf mindestens zwei Pfaden befindet, die Tupel nicht an alle Nachfolger sendet.
+Das bedeutet, dass ein Operator, der sich auf mindestens zwei Pfaden befindet, die Tupel nicht an alle Nachfolger sendet.
 Er selektiert stattdessen welche Tupel er an welchen Nachfolger sendet.
 Wie in der Abbildung 4.1 dargestellt sendet Operator 1 die Tupel von Quelle 2 nur an Operator 3 weiter.
 Die Tupel von Quelle 1 werden nur an Operator 2 weitergeleitet.
@@ -64,7 +64,7 @@ Die Quelle wird in vielen Arbeiten als nicht parallelisierbar modelliert und wir
 Abbildung 4.2 zeigt die beiden Pfade in der Form, wie sie im CEP-System physisch ausgeprägt sind.
 Dies entspricht dem zweiten Graph im vorgestellten Topologie-Modell.
 Jeder Operator besitzt genau die Anzahl Tasks, die durch den Parallelisierungsgrad festgelegt ist.
-Ein Task ist eine Instanz, welche die Funktion des logischen Operators ausführt.
+Ein Task ist eine Instanz, die die Funktion des logischen Operators ausführt.
 Zwischen den Tasks befinden sich Kanäle, über die diese miteinander kommunizieren.
 Ein Task hat dabei immer einen Kanal zu allen Tasks des folgenden Operators.
 So kann ein Tupel von diesem zu jedem beliebigen Task des Nachfolgers gesendet werden.
@@ -100,7 +100,7 @@ Die Messwerte, die für Tasks beschrieben sind, gelten unter der Annahme, dass s
 \begin{itemize}
 \item{Pfad-Latenz / Tupel-Latenz: Beschreibt die durchschnittliche Dauer in Millisekunden, die ein Tupel benötigt um die Topologie von der Quelle bis zum Konsumenten zu durchqueren. 
 Die Dauer beginnt mit der Abgabe des Tupels durch die Quelle bis es vom Konsumenten erfolgreich abgearbeitet wurde. 
-Die Messung ist nur zuverlässig, wenn Quelle und Konsument auf dem gleichen Rechner platziert sind, da Uhren verschiedener Rechner nicht zu 100\% synchron sind \cite{goggel_vergleich_20180}.}
+Die Messung ist nur zuverlässig, wenn Quelle und Konsument auf dem gleichen Rechner platziert sind, da Uhren verschiedener Rechner nicht zu 100\% synchron sind \cite{goggel_vergleich_2018}.}
 \item{Fehlgeschlagene Tupel: Gibt die Anzahl Tupel an,  bei denen die Verarbeitung in der Topologie nicht erfolgreich war.
 Ursache kann unter anderem ein Fehler während der Bearbeitung durch einen Operator sein.}
 \item{Bestätigte Tupel: Anzahl der Tupel, die erfolgreich durch die Topologie abgearbeitet wurden.}
@@ -108,7 +108,7 @@ Ursache kann unter anderem ein Fehler während der Bearbeitung durch einen Opera
 Diese unterscheidet sich bei Operatoren die ein Fenster verwenden und Operatoren die kein Fenster verwenden  \cite{lohrmann_elastic_2015}.
 Ein Fenster beschreibt einen Operators der Tupel aufnimmt, um auf allen gesammelten Tupeln eine Operation durchzuführen.
 Meistens erfordert die Operation mehrere Tupel um Zusammenhänge zu erkennen.
-Die Latenz des ersten aufgenommenen Tupels ist dann länger als die des Tupels welches zuletzt in das Fenster aufgenommen wurde, da sie alle zusammen wieder weitergeleitet werden wenn das Fenster voll ist. 
+Die Latenz des ersten aufgenommenen Tupels ist dann länger als die des Tupels, das zuletzt in das Fenster aufgenommen wurde, da sie alle zusammen wieder weitergeleitet werden wenn das Fenster voll ist. 
 Verwendet der Operator kein Fenster, so wird das Tupel direkt nach der Aufnahme verarbeitet und weitergeleitet.
 Anschließend wird das nächste Tupel aufgenommen.}
 \item{Anzahl Ausführungen des Tasks: Misst die Anzahl wie oft der Task ein neues Tupel aufgenommen und verarbeitet hat.}
