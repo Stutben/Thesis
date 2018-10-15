@@ -138,7 +138,19 @@
 \else
 \section*{Abstract}
 \fi
-\ldots ... Short summary of the thesis ...
+Die Optimierung des Parallelisierungsgrades der Operatoren eines CEP-Systems ist ein in der Forschung oft untersuchtes Problem.
+Meistens sind die vorgeschlagenen Lösungen jedoch nur für das von den Autoren verwendete CEP-System verfügbar.
+Somit ist es oft schwer die Performance verschiedener Lösungen zu vergleichen.
+In der vorliegenden Arbeit wird ein Framework implementiert, das es ermöglicht in der Forschung vorgeschlagene Algorithmen für verschiedene CEP-Systeme zu verwenden.
+Dazu arbeiten die Algorithmen auf einem vom Framework bereitgestellten Modell der zu steuernden Topologie und sind nicht vom Zielsystem abhängig.
+Die Steuerung des CEP-Systems wird durch das Framework über einen Adapter gekapselt.
+So können die implementierten Algorithmen auf verschiedenen Systemen evaluiert werden.
+Unter Verwendung des Frameworks werden in dieser Arbeit zwei der in der Forschung vorgeschlagenen Algorithmen implementiert.
+Einer der Algorithmen arbeitet reaktiv mit dem Modell der Warteschlangen-Theorie.
+Der zweite Algorithmus versucht über Vorhersagen der ankommenden Tupel die Topologie präventiv zu skalieren.
+Für die Evaluierung der beiden Ansätze steuern diese über das Framework eine für Heron implementierte Topologie.
+In der durchgeführten Evaluation kann der Algorithmus mit Warteschlangen-Theorie bei ähnlichem Ressourcenverbrauch die Verarbeitungslatenz eines Tupels und die Fehlerrate der Tupel konstant unter  den Vergleichswerten des präventiven Algorithmus halten.
+
 \cleardoublepage
 
 

@@ -1,7 +1,10 @@
 \chapter{Algorithmus mit Regression}
 
 Als weitere Option die Topologie zu skalieren wurde der Algorithmus von Zacheilas et al. \cite{zacheilas_elastic_2015} für das Framework implementiert.
-Er berechnet, im Gegensatz zum Algorithmus von Lohrmann et al., nicht die gegenwärtige Auslastung des Systems sondern bedient sich der Regression um den zukünftigen Zustand des Systems vorherzusagen.
+In den folgenden Ausführungen werden die Änderungen, die für die Implementierung des Algorithmus vorgenommen wurden, begründet und erläutert.
+Ebenso werden die Parameter, die den Algorithmus steuern, dokumentiert.
+
+Der hier umgesetzte Algorithmus berechnet, im Gegensatz zum Algorithmus von Lohrmann et al., nicht die gegenwärtige Auslastung des Systems sondern bedient sich der Regression um den zukünftigen Zustand des Systems vorherzusagen.
 Dies bedeutet konkret, dass der Algorithmus versucht präventiv auf zukünftige Ereignisse zu reagieren, während der der Algorithmus mit Warteschlangen-Theorie reaktiv agiert.
 Das Ziel des Algorithmus ist die Topologie möglichst vorausschauend anzupassen.
 

@@ -1,12 +1,17 @@
 \chapter{Implementierung des Frameworks}
 
-Dieses Kapitel beschäftigt sich mit der Architektur und Implementierung des Frameworks.
+Dieses Kapitel beschäftigt sich mit der Architektur und Implementierung des in dieser Arbeit entwickelten Frameworks.
 Das Framework schafft eine Abstraktionsebene für die Algorithmen, die die aktiven Topologien in den CEP-Systemen skalieren.
 Die reale CEP-Topologie wird in dem Framework als abstrahiertes Graphen-Modell automatisiert erzeugt und den Algorithmen zur Verfügung gestellt.
 Dadurch wird ermöglicht, dass Algorithmen, die den Parallelisierungsgrad von Operatoren berechnen, unabhängig vom Zielsystem implementiert werden können.
 Anschließend können die implementierten Algorithmen für mehrere verschiedene CEP-Systeme eingesetzt werden, ohne dass Anpassungen am Algorithmus vorgenommen werden müssen.
 Außerdem skaliert das Framework automatisch die einzelnen Operatoren mit den berechneten Parallelisierungsgraden.
-Die vorliegende Architektur ermöglicht die zeitgleiche Steuerung mehrerer CEP-Topologien, die auch über diverse CEP-Systeme verteilt werden können. 
+Die vorliegende Architektur ermöglicht die zeitgleiche Steuerung mehrerer CEP-Topologien, die auch über diverse CEP-Systeme verteilt werden können.
+
+Im Folgenden werden die einzelnen Komponenten des Frameworks und ihre Funktion erläutert.
+Außerdem werden die Abhängigkeiten zwischen den Komponenten dargestellt.
+Anschließend wird noch speziell auf die Messwerte eingegangen, die im Graphen-Modell des Frameworks vorgehalten werden.
+ 
 
 \section{Architektur}
 
@@ -36,7 +41,7 @@ Im Folgenden werden die einzelnen Komponenten der Architektur genauer erläutert
 
 \begin{figure}
   \centering
-  \includegraphics[width=\textwidth]{Systemaufbau.png}
+  \includegraphics[scale=0.65]{Systemaufbau.png}
   \caption{Architektur des Frameworks}
   \label{fig:Architektur}
 \end{figure}

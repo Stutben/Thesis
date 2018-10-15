@@ -20,7 +20,7 @@ Die Schwankung, die während der Nacht auftritt, ist vorhersehbar.
 Es gibt jedoch auch Erhöhungen der Datenmengen die nicht zwingend im Voraus erkennbar sind.
 In solchen Fällen muss sich die Verarbeitung der Daten dennoch an die Schwankung des Datenstroms anpassen.
 Die Fähigkeit des arbeitenden Systems, eine solche Anpassung an den anfallenden Arbeitsaufwand vorzunehmen, wird als Elastizität bezeichnet.
-Ein essentieller Beitrag zur Elastizität eines Systems liefern Cloud-Umgebungen, die es möglich machen Ressourcen dynamisch zu mieten.
+Einen essentiellen Beitrag zur Elastizität eines Systems liefern Cloud-Umgebungen, die es möglich machen Ressourcen dynamisch zu mieten.
 
 Um die Möglichkeiten der Cloud zu nutzen, muss das System selbst erst in der Lage sein dynamisch zu skalieren.
 In den letzten Jahren hat sich die Forschung damit beschäftigt, wie sich Elastizität in der Datenstromverarbeitung umsetzen lässt.
@@ -29,34 +29,43 @@ Diese Problemstellungen werden in dieser Arbeit behandelt.
 Nahezu alle der vorgestellten Lösungen wurden dabei für ein bestimmtes System entwickelt.
 Das Ziel dieser Arbeit ist es, die generelle Einsatzfähigkeit, der in der Forschung vorgestellten Lösungen, für verschiedene CEP-Systeme zu ermöglichen und zu evaluieren.
 
-Die vorliegende Arbeit beschreibt zuerst die Elastizität von CEP-Systemen und deren Notwendigkeit.
+Die vorliegende Arbeit beschreibt nachdem verwandte Arbeiten vorgestellt wurden im dritten Kapitel die Elastizität von CEP-Systemen und deren Notwendigkeit.
 Daraus werden die Problemstellungen definiert, die sich für elastische CEP-Systeme ergeben.
 Anschließend werden verschiedene Lösungen aus der Forschung vorgestellt, die für ein automatisiertes Skalieren eines CEP-Systems entwickelt wurden.
-Der Fokus in dieser Arbeit liegt darin die Parallelisierungsgrade der Operatoren in einer CEP-Topologie zu bestimmen.
-Zwei Algorithmen, die dieses Problem lösen, werden gewählt und im Rahmen der Arbeit implementiert und evaluiert.
+Der Fokus in dieser Arbeit liegt darin, die Parallelisierungsgrade der Operatoren in einer CEP-Topologie zu bestimmen.
+Zwei Algorithmen, die dieses Problem lösen, werden gewählt und im weiteren Verlauf der Arbeit implementiert und evaluiert.
+
+Im folgenden vierten Kapitel wird das in dieser Arbeit verwendete Modell für datenstrom-verarbeitende Topologien definiert.
+Insbesondere werden die Messwerte bestimmt, die eine solche Topologie beschreiben.
 
 Um die Algorithmen für verschiedene CEP-Systeme verfügbar zu machen, wird im weiteren Verlauf dieser Arbeit ein Framework implementiert.
+Das in dieser Arbeit entwickelte Framework wird in Kapitel fünf vorgestellt.
 Zielsetzung des Frameworks ist, dass Algorithmen, die den Parallelisierungsgrad einer Topologie steuern, unabhängig vom CEP-System implementiert werden können.
 Es soll ermöglicht werden, dass implementierte Algorithmen wiederverwendbar sind und für diverse CEP-Systeme eingesetzt werden können.
-Dazu stellt das Framwork eine API zur Verfügung, die das in der Forschung verwendete Graphen-Modell nachbildet.
+Dazu stellt das Framework eine API zur Verfügung, die das in der Forschung verwendete Graphen-Modell für Topologien nachbildet.
 Auf Basis dieser API können Algorithmen implementiert werden, sodass sie auf dem abstrahierten Modell einer CEP-Topologie arbeiten.
-Für die Erstellung des Topologie-Modells wird automatisiert vom Framework übernommen.
+Die Erstellung des Topologie-Modells wird dabei automatisiert vom Framework übernommen.
 Das Framework liest dazu die Topologie aus dem realen CEP-System aus und stellt diese anschließend als Graphen-Modell bereit. 
 
-Um das Framework an verschiedene CEP-Systeme anbinden zu können, wird im darauf folgenden Teil der Arbeit eine bestehende Lösung \cite{goggel_vergleich_2018} verwendet und erweitert.
+Um das Framework an verschiedene CEP-Systeme anbinden zu können, wird in Kapitel sechs der vorliegenden Arbeit eine bestehende Lösung \cite{goggel_vergleich_2018} verwendet und erweitert.
 Die Idee der Lösung ist, dass eine einheitliche REST-Schnittstelle verwendet wird um verschiedene CEP-Systeme zu steuern.
 Für jedes CEP-System kann so unabhängig ein Adapter erstellt werden, der die Spezifika des CEP-Systems kapselt und über die einheitliche REST-Schnittstelle zur Verfügung stellt.
-Die REST-Schnittstelle wird in der vorliegenden Arbeit stark erweitert, sodass die für das Graphen-Modell notwendigen Informationen bereit gestellt werden können.
+Die REST-Schnittstelle wird in der vorliegenden Arbeit stark erweitert, sodass für das vom Framework verwendete Graphen-Modell alle notwendigen Informationen bereit gestellt werden können.
 Anschließend wird der bestehende Adapter für Heron so angepasst, dass er die aktualisierte Version der REST-Schnittstelle implementiert.
 
 Nachdem die Grundlage durch das Framework geschaffen ist, werden zwei in der Forschung vorgeschlagene Algorithmen für die Bibliothek des Frameworks implementiert.
 Die gewählten Algorithmen unterscheiden sich dabei bewusst in ihrem zugrundeliegenden Modell.
+Die Implementierung der Algorithmen im Rahmen dieser Arbeit ist in den Kapiteln sieben und acht dokumentiert.
 Einer der Algorithmen berechnet den Parallelisierungsgrad reaktiv mit Hilfe des Modells der Warteschlangen-Theorie.
 Der andere arbeitet präventiv und berechnet den Parallelisierungsgrad durch die Optimierung einer Kostenfunktion.
-Für die Implementierung werden entsprechende Anpassungen und Verbesserungen an den Algorithmen umgesetzt und beschrieben.
+Während der Implementierung werden entsprechende Anpassungen und Verbesserungen an den Algorithmen umgesetzt.
+Diese werden ebenfalls in dieser Arbeit erläutert und dokumentiert.
 
-Zuletzt werden die beiden Implementierungen evaluiert.
-Dazu wurde im Rahmen dieser Arbeit eine Topologie für Heron entwickelt.
+Anschließend findet in Kapitel neun eine Evaluation der beiden Implementierungen statt statt.
+Um die Evaluation durchzuführen, wurde im Rahmen dieser Arbeit eine Topologie für Heron entwickelt.
 Diese analysiert Tweets von der Twitter-Streaming-API auf Merkmale wie Hashtags oder Textlänge.
-Für die Evaluation der Algorithmen steuern diese nacheinander den Parallelisierungsgrad der Topologie während der Analyse auf dem selben Datensatz.
+Die entwickelte Topologie wird in einem für die Evaluation aufgebauten Heron-Cluster ausgeführt.
+Für die Evaluation der beiden implementierten Algorithmen steuern diese nacheinander den Parallelisierungsgrad der Topologie während der Analyse auf dem selben Datensatz.
 Die Diskussion der Ergebnisse aus der Evaluation findet im letzten Teil der Arbeit statt.
+
+Zuletzt wird die Arbeit in Kapitel zehn mit einer kurzen Zusammenfassung und einem Ausblick abgeschlossen. 
